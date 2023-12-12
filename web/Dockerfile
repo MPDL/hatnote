@@ -18,19 +18,21 @@ CMD npm run start
 FROM base as staging
 COPY . .
 ENV NODE_ENV production
+# removed --omit=dev so that docker can build the project with webpack
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev && npm run build-staging
+    npm ci --include=dev && npm run build-staging
 USER node
 CMD npm run start
 
 FROM base as prod
 COPY . .
 ENV NODE_ENV production
+# removed --omit=dev so that docker can build the project with webpack
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev && npm run build-prod
+    npm ci --include=dev && npm run build-prod
 USER node
 CMD npm run start
