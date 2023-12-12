@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  hatnote-production-web:
+    build:
+      context: ../../web
+      dockerfile: Dockerfile
+      target: prod
+    image: hatnote-production-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      hatnote-production-api:
+        condition: service_started
+  hatnote-production-api:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    environment:
+      - LOG_ABS_PATH=$LOG_ABS_PATH
+      - APP_ENVIRONMENT=$APP_ENVIRONMENT
+      - APP_ENVIRONMENT_FILE_DIR=$APP_ENVIRONMENT_FILE_DIR
+    image: hatnote-production-api
+    ports:
+      - "8181:8080"
+    volumes:
+      - ./data:/app/data

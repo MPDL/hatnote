@@ -1,0 +1,17 @@
+/******************************************
+ ** Hatnote visualisation fonts **
+ *****************************************/
+
+@font-face {
+    font-family: 'HatnoteVisNormal';
+    src: url('../../assets/font/Noto_Sans/NotoSans-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'HatnoteVisBold';
+    src: url('../../assets/font/Noto_Sans/NotoSans-Bold.ttf') format('truetype');
+}
+
+body{overflow: hidden;}
+a tspan {fill: #09c; text-decoration: underline;}
+a:hover tspan {fill: skyblue; }

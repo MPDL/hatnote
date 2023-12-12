@@ -1,0 +1,51 @@
+# src: https://github.com/microsoft/TypeScript-Node-Starter/blob/master/.gitignore
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+
+pids
+logs
+results
+tmp
+
+# Build
+public/css/main.css
+
+# Coverage reports
+coverage
+
+# Dependency directory
+node_modules
+bower_components
+
+# Editors
+.idea
+*.iml
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore built ts files
+dist/**/*
+
+# ignore yarn.lock
+yarn.lock
+
+web/dist
+web/.env.development.local
+api/.env*
+api/docker-compose-postgres.yml
+api/hatnoteapp.log
+api/institute-data-mock.json
+api/institute-data-mock-2.json
+api/keeperx.json
+api/keeperx_en.json
+api/api
+docker/development.local
