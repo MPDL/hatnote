@@ -3,7 +3,7 @@ version: '3.8'
 services:
   hatnote-production-web:
     build:
-      context: ../../web
+      context: https://github.com/MPDL/hatnote.git#production:web
       dockerfile: Dockerfile
       target: prod
     image: hatnote-production-web
@@ -14,7 +14,7 @@ services:
         condition: service_started
   hatnote-production-api:
     build:
-      context: ../../api
+      context: https://github.com/MPDL/hatnote.git#production:api
       dockerfile: Dockerfile
     environment:
       - LOG_ABS_PATH=$LOG_ABS_PATH
