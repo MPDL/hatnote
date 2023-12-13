@@ -12,12 +12,15 @@ import {BannerData, CircleData, DatabaseInfo, NetworkInfoboxData} from "../obser
 import {SettingsData} from "../configuration/hatnote_settings";
 import {HatnoteVisService} from "../service_event/model";
 import {Carousel} from "./carousel";
+import {Navigation} from "./navigation";
 
 export class Canvas {
     public readonly circles_layer: CirclesLayer;
     public readonly banner_layer:  BannerLayer;
     public readonly qr_code: QRCode;
     public readonly header: Header;
+    public readonly navigation: Navigation | undefined;
+    public readonly isMobileScreen: boolean = false;
     public readonly info_box_websocket: InfoBox;
     public readonly info_box_audio: InfoBox;
     public readonly theme: Theme;
@@ -65,6 +68,10 @@ export class Canvas {
         this.updateVersionSubject = updateVersionSubject
         this.hatnoteVisServiceChangedSubject = hatnoteVisServiceChangedSubject
 
+        if (this._width <= 430) {
+            this.isMobileScreen = true;
+        }
+
         // draw order matters in this function. Do not change without checking the result.
         this.root = select("#app").append("svg")
             .attr("width", this._width)
@@ -76,6 +83,7 @@ export class Canvas {
         this.banner_layer = new BannerLayer(this)
         this.qr_code = new QRCode(this)
         this.header = new Header(this)
+        this.navigation = new Navigation(this)
         // needs to be added last to the svg because it should draw over everything else
         this.info_box_websocket = new InfoBox(this, InfoboxType.network_websocket_connecting)
         this.info_box_audio = new InfoBox(this, InfoboxType.audio_enable)

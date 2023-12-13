@@ -26,7 +26,7 @@
   },
   "scripts": {
     "update-version": "./update_version.sh",
-    "build": "npm run update-version && webpack --env HATNOTE_ENV=local.development --mode development",
+    "build": "npm run update-version && webpack --env HATNOTE_ENV=development.local --mode development",
     "build-dev": "webpack --env HATNOTE_ENV=development.local --mode development",
     "build-staging": "webpack --env HATNOTE_ENV=staging --mode production",
     "build-prod": "webpack --env HATNOTE_ENV=production --mode production",
