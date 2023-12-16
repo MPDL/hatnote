@@ -84,7 +84,6 @@ export class Navigation{
     }
 
     public themeUpdate(currentServiceTheme: ServiceTheme) {
-        // update legend items
         this.clearLegendItems()
         currentServiceTheme.legend_items.forEach((theme_legend_item, i) => {
             if(i < this.legend_items.length) {
