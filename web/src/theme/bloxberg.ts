@@ -10,7 +10,7 @@ export const bloxberg_service_theme: ServiceTheme = {
     color1: 'rgb(124, 169, 175)',
     color2: 'rgb(224, 29, 108)',
     color3: 'rgb(235, 233, 233)',
-    header_title: 'Listen to bloxberg',
+    header_title: 'bloxberg',
     header_logo: BloxbergLogo,
     carousel_time: 300000,
     header_y: 0,
@@ -22,11 +22,13 @@ export const bloxberg_service_theme: ServiceTheme = {
     },
     legend_items: [
         {
+            position_y_info_box: -20,
             position_x: 370,
             title: 'block',
             event: ServiceEvent.bloxberg_block
         },
         {
+            position_y_info_box: 35,
             position_x: 220,
             title: 'transaction',
             event: ServiceEvent.bloxberg_confirmed_transaction

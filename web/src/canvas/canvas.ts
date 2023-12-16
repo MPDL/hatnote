@@ -17,12 +17,13 @@ import {Navigation} from "./navigation";
 export class Canvas {
     public readonly circles_layer: CirclesLayer;
     public readonly banner_layer:  BannerLayer;
-    public readonly qr_code: QRCode;
+    public readonly qr_code: QRCode | undefined;
     public readonly header: Header;
     public readonly navigation: Navigation | undefined;
     public readonly isMobileScreen: boolean = false;
     public readonly info_box_websocket: InfoBox;
     public readonly info_box_audio: InfoBox;
+    public readonly info_box_legend: InfoBox;
     public readonly theme: Theme;
     public readonly settings: SettingsData;
     public readonly newCircleSubject: Subject<CircleData>
@@ -68,7 +69,7 @@ export class Canvas {
         this.updateVersionSubject = updateVersionSubject
         this.hatnoteVisServiceChangedSubject = hatnoteVisServiceChangedSubject
 
-        if (this._width <= 430) {
+        if (this._width <= 430 || this._height <= 430) { // iPhone 12 Pro Max 430px viewport width
             this.isMobileScreen = true;
         }
 
@@ -81,16 +82,25 @@ export class Canvas {
 
         this.circles_layer = new CirclesLayer(this)
         this.banner_layer = new BannerLayer(this)
-        this.qr_code = new QRCode(this)
+        if (!this.isMobileScreen) {
+            this.qr_code = new QRCode(this)
+        }
         this.header = new Header(this)
-        this.navigation = new Navigation(this)
         // needs to be added last to the svg because it should draw over everything else
         this.info_box_websocket = new InfoBox(this, InfoboxType.network_websocket_connecting)
         this.info_box_audio = new InfoBox(this, InfoboxType.audio_enable)
+        this.info_box_legend = new InfoBox(this, InfoboxType.legend)
 
-        if(settings.carousel_mode){
+        if(settings.carousel_mode && !this.isMobileScreen){
             this.carousel = new Carousel(this)
         }
+
+        // needs to be added after the carousel transition because the transition layer spans over the entire screen
+        // which captures mouse clicks that otherwise would not arrive at the navigation buttons
+        if (this.isMobileScreen) {
+            this.navigation = new Navigation(this)
+        }
+
         this.renderCurrentTheme();
 
         if(!settings.kiosk_mode && !settings.audio_mute){
@@ -112,10 +122,12 @@ export class Canvas {
         this.banner_layer.removeBanner();
 
         // update qr code
-        this.qr_code.themeUpdate(this.theme.current_service_theme)
+        this.qr_code?.themeUpdate(this.theme.current_service_theme)
 
         // update header logo
         this.header.themeUpdate(this.theme.current_service_theme)
+
+        this.navigation?.themeUpdate(this.theme.current_service_theme)
     }
 
     // This method does not cover all ui elements. There is no requirement for this nor a need for a mobile version. People
@@ -136,7 +148,10 @@ export class Canvas {
         this.carousel?.windowUpdate()
 
         // update qr_code
-        this.qr_code.windowUpdate()
+        this.qr_code?.windowUpdate()
+
+        // update navigation
+        this.navigation?.windowUpdate()
 
         // update websocket info box
         this.info_box_websocket.windowUpdate()

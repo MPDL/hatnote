@@ -10,7 +10,7 @@ export const keeper_service_theme: ServiceTheme = {
     color1: 'rgb(112, 111, 111)',
     color2: 'rgb(184, 20, 76)',
     color3: 'rgb(29, 48, 84)',
-    header_title: 'Listen to Keeper',
+    header_title: 'Keeper',
     header_logo: KeeperLogo,
     carousel_time: 300000,
     header_y: 2,
@@ -22,16 +22,19 @@ export const keeper_service_theme: ServiceTheme = {
     },
     legend_items: [
         {
+            position_y_info_box: -20,
             position_x: 390,
             title: 'file create',
             event: ServiceEvent.keeper_file_create
         },
         {
+            position_y_info_box: 35,
             position_x: 550,
             title: 'file edit',
             event: ServiceEvent.keeper_file_edit
         },
         {
+            position_y_info_box: 90,
             position_x: 190,
             title: 'new library',
             event: ServiceEvent.keeper_new_library

@@ -1,25 +1,105 @@
 import {Selection} from "d3";
 import {Canvas} from "./canvas";
+import {IconButton} from "./icon_button";
+import {ServiceTheme} from "../theme/model";
+import {LegendItem} from "./legend_item";
+import {InfoboxType} from "./info_box";
 
 export class Navigation{
     public readonly canvas: Canvas;
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
+    public readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
     private readonly backButton: IconButton;
+    private readonly nextButton: IconButton;
+    private readonly infoButton: IconButton;
+    private isInfoBoxOpen: boolean;
+    private readonly navigationWidth = 270;
+    private currentServiceIndex = 0;
+    private readonly legend_items: LegendItem[] = [];
 
     constructor(canvas: Canvas) {
         this.canvas = canvas
 
         this.root = canvas.appendSVGElement('g').attr('id', 'navigation')
-            .attr('transform', 'translate(' + canvas.width/2 + ', ' + (canvas.height - 50) + ')')
-            .attr('opacity', canvas.isMobileScreen ? 1 : 1);
+            .attr('opacity', canvas.isMobileScreen ? 1 : 0);
+        this.setPosition()
+        this.isInfoBoxOpen = false
 
-        this.backButton = this.root.append('text')
-        .text('legend item')
-        .attr('font-family', 'HatnoteVisNormal')
-        .attr('font-size', '26px')
-        .attr('fill', header.canvas.theme.header_text_color)
-        .attr('x', header.canvas.theme.legend_item_circle_r + 10)
-        .attr('y', header.canvas.theme.header_height/2 + 8.5)
-        .attr('opacity', 1)
+        this.backButton = new IconButton(this, 0, 0, 'left', 'hatnoteLastService()');
+        this.nextButton = new IconButton(this, this.navigationWidth, 0, 'right', 'hatnoteNextService()');
+        this.infoButton = new IconButton(this, this.navigationWidth/2, 0, 'info', 'hatnoteInfoButton()');
+
+        // @ts-ignore
+        window.hatnoteNextService = () => this.nextService(this);
+        // @ts-ignore
+        window.hatnoteLastService = () => this.lastService(this);
+        // @ts-ignore
+        window.hatnoteInfoButton = () => this.clickInfoButton(this);
+
+        if(this.canvas.isMobileScreen){
+            for (let i = 0; i < 3; i++) {
+                this.legend_items.push(new LegendItem(undefined, this.canvas.info_box_legend, this.canvas))
+            }
+        }
+    }
+
+    private setPosition(){
+        this.root.attr('transform', 'translate(' + (this.canvas.width/2 - this.navigationWidth/2) + ', ' + (this.canvas.height - 50) + ')')
+    }
+
+    private nextService(nav: Navigation){
+        nav.currentServiceIndex = (nav.currentServiceIndex + 1) % nav.canvas.theme.carousel_service_order.length
+        nav.changeTheme()
+    }
+
+    private lastService(nav: Navigation){
+        nav.currentServiceIndex = (nav.currentServiceIndex - 1)
+        if (nav.currentServiceIndex < 0 ){
+            nav.currentServiceIndex = 2
+        }
+        nav.changeTheme()
+    }
+
+    private clickInfoButton(nav: Navigation){
+        if(nav.isInfoBoxOpen){
+            this.canvas.info_box_legend.show(InfoboxType.legend, false)
+            nav.infoButton.setIcon('info')
+            nav.isInfoBoxOpen = false
+        } else {
+            this.canvas.info_box_legend.show(InfoboxType.legend, true)
+            nav.infoButton.setIcon('close')
+            nav.isInfoBoxOpen = true
+        }
+    }
+
+    private changeTheme(){
+        let nextService = this.canvas.theme.carousel_service_order[this.currentServiceIndex]
+        this.canvas.theme.set_current_theme(nextService);
+        this.canvas.renderCurrentTheme()
+    }
+
+    private clearLegendItems(){
+        this.legend_items.forEach((theme_legend_item, i) => {
+            this.legend_items[i].hide()
+        });
+    }
+
+    public themeUpdate(currentServiceTheme: ServiceTheme) {
+        // update legend items
+        this.clearLegendItems()
+        currentServiceTheme.legend_items.forEach((theme_legend_item, i) => {
+            if(i < this.legend_items.length) {
+                this.legend_items[i].themeUpdate(theme_legend_item)
+            }
+        });
+    }
+
+    public windowUpdate() {
+        this.setPosition()
+
+        this.canvas.theme.current_service_theme.legend_items.forEach((theme_legend_item, i) => {
+            if(i < this.legend_items.length) {
+                this.legend_items[i].windowUpdate(theme_legend_item)
+            }
+        });
     }
 }

@@ -10,6 +10,7 @@ export class Header{
     private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>
     private readonly background_rect: Selection<SVGRectElement, unknown, HTMLElement, any>
     private readonly title: Selection<SVGTextElement, unknown, HTMLElement, any>
+    private readonly title0: Selection<SVGTextElement, unknown, HTMLElement, any>
     private readonly logo: Selection<SVGImageElement, unknown, HTMLElement, any>
     private readonly updateBox: Selection<SVGRectElement, unknown, HTMLElement, any>
     private readonly updateText: Selection<SVGTextElement, unknown, HTMLElement, any>
@@ -36,7 +37,14 @@ export class Header{
         this.title = this.root.append('text')
             .text('Hatnote title')
             .attr('font-family', 'HatnoteVisBold')
-            .attr('font-size', '32px')
+            .attr('font-size', this.canvas.isMobileScreen ? '22px' : '32px')
+            .attr('fill', canvas.theme.header_text_color)
+            .attr('x', this.canvas.isMobileScreen ? 174 : 224).attr('y', canvas.theme.header_height/2 + 8.5)
+
+        this.title0 = this.root.append('text')
+            .text('Listen to')
+            .attr('font-family', 'HatnoteVisNormal')
+            .attr('font-size', this.canvas.isMobileScreen ? '22px' : '32px')
             .attr('fill', canvas.theme.header_text_color)
             .attr('x', 70).attr('y', canvas.theme.header_height/2 + 8.5)
 
@@ -58,8 +66,10 @@ export class Header{
             .attr('font-size', '16px')
             .attr('fill', '#fff')
 
-        for (let i = 0; i < 3; i++) {
-            this.legend_items.push(new LegendItem(this))
+        if(!this.canvas.isMobileScreen){
+            for (let i = 0; i < 3; i++) {
+                this.legend_items.push(new LegendItem(this, undefined, this.canvas))
+            }
         }
 
         canvas.updateVersionSubject.subscribe({
@@ -100,8 +110,6 @@ export class Header{
         currentServiceTheme.legend_items.forEach((theme_legend_item, i) => {
             if(i < this.legend_items.length) {
                 this.legend_items[i].themeUpdate(theme_legend_item)
-            } else {
-                console.log('There are more theme legend items than canvas legend items for %s', currentServiceTheme.name);
             }
         });
     }
@@ -115,8 +123,6 @@ export class Header{
         this.canvas.theme.current_service_theme.legend_items.forEach((theme_legend_item, i) => {
             if(i < this.legend_items.length) {
                 this.legend_items[i].windowUpdate(theme_legend_item)
-            } else {
-                console.log('There are more theme legend items than canvas legend items for %s', this.canvas.theme.current_service_theme.name);
             }
         });
     }

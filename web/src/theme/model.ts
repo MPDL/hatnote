@@ -23,6 +23,7 @@ interface ThemeQrCode {
 
 export interface ThemeLegendItem {
     position_x?: number,
+    position_y_info_box?: number,
     position_x_small_title?: number,
     title?: string,
     smallTitle1?: string,

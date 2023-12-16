@@ -9,7 +9,7 @@ import InfoboxDbConnectingImg from "../../assets/images/MessyDoodle.svg";
 export class InfoBox{
     private readonly root:  Selection<SVGGElement, unknown, HTMLElement, any>
     private readonly background_rect:  Selection<SVGRectElement, unknown, HTMLElement, any>
-    private readonly image:  Selection<SVGImageElement, unknown, HTMLElement, any>
+    private readonly image:  Selection<SVGImageElement, unknown, HTMLElement, any> | undefined
     private readonly title:  Selection<SVGTextElement, unknown, HTMLElement, any>
     private readonly text:  Selection<SVGTextElement, unknown, HTMLElement, any>
     private readonly line1:  Selection<SVGTSpanElement, unknown, HTMLElement, any>[]
@@ -20,7 +20,7 @@ export class InfoBox{
     private readonly line5link: Selection<HTMLAnchorElement, unknown, HTMLElement, any> | undefined
     private readonly loadingSpinner: Selection<SVGImageElement, unknown, HTMLElement, any> | undefined
     private readonly infobox_width = 600
-    private readonly infobox_height = 190
+    public readonly infobox_height = 190
     private readonly infobox_image_width = 200
     private readonly infobox_image_left_padding = 15
     private readonly infobox_image_top_padding = 20
@@ -35,18 +35,20 @@ export class InfoBox{
             .attr('opacity', 0)
             .attr('id', 'infobox_' + type.toString())
         this.background_rect = this.root.append('rect')
-            .attr('width', this.infobox_width)
+            .attr('width', this.canvas.isMobileScreen ? this.canvas.width - 40 : this.infobox_width)
             .attr('height', this.infobox_height)
             .attr('stroke', 'rgb(41, 128, 185)')
             .attr('stroke-width', '7')
             .attr('rx', 20)
             .attr('ry', 20)
             .attr('fill', '#fff')
-        this.image = this.root.append('image')
-            .attr('href', InfoboxAudioImg)
-            .attr('width', this.infobox_image_width)
+        if(!this.canvas.isMobileScreen) {
+            this.image = this.root.append('image')
+                .attr('href', InfoboxAudioImg)
+                .attr('width', this.infobox_image_width)
+        }
         this.title = this.root.append('text')
-            .text('Infobox title')
+            .text('')
             .attr('font-family', 'HatnoteVisBold')
             .attr('font-size', '26px')
             .attr('fill', canvas.theme.header_text_color)
@@ -102,11 +104,15 @@ export class InfoBox{
         this.setPosition()
     }
 
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, HTMLElement, any> {
+        return this.root.append(type)
+    }
+
     public show(type: InfoboxType, show: boolean, network_infobox_data?: NetworkInfoboxData) {
         this.currentType = type
         if(type=== InfoboxType.audio_enable) {
             this.root.attr('opacity', show ? 1 : 0)
-            this.image.attr('href', InfoboxAudioImg)
+            this.image?.attr('href', InfoboxAudioImg)
             this.title.text('Enable audio')
             this.line1[0].text('Your browser autoplay policy may prevent')
             this.line2[0].text('audio from being played. Please ')
@@ -121,7 +127,7 @@ export class InfoBox{
 
         if(type === InfoboxType.network_websocket_connecting){
             this.root.attr('opacity', show ? 1 : 0)
-            this.image.attr('href', InfoboxWebsocketConnectingImg)
+            this.image?.attr('href', InfoboxWebsocketConnectingImg)
             this.title.text('Connecting to server')
             this.line1[0].text('Your browser is connecting to the server.')
             this.line2[0].text(' ')
@@ -136,7 +142,7 @@ export class InfoBox{
         // is shown, the keeper db infobox might appear
         if(type === InfoboxType.network_database_connecting && this.canvas.theme.current_service_theme.id_name === network_infobox_data?.service){
             this.root.attr('opacity', show ? 1 : 0)
-            this.image.attr('href', InfoboxWebsocketConnectingImg)
+            this.image?.attr('href', InfoboxWebsocketConnectingImg)
             this.title.text('Connecting to database')
             this.line1[0].text('Connecting to ' + this.canvas.theme.current_service_theme.name + ' database.')
             this.line2[0].text(' ')
@@ -150,7 +156,7 @@ export class InfoBox{
         if(type === InfoboxType.network_database_can_not_connect && this.canvas.theme.current_service_theme.id_name === network_infobox_data?.service &&
             (!this.canvas.settings.carousel_mode || this.canvas.carousel?.allServicesHaveError)){
             this.root.attr('opacity', show ? 1 : 0)
-            this.image.attr('href', InfoboxDbConnectingImg)
+            this.image?.attr('href', InfoboxDbConnectingImg)
             this.title.text('Cannot connect to database')
             this.line1[0].text('The backend can not connect ' + this.canvas.theme.current_service_theme.name + ' database.')
             this.line2[0].text(' ')
@@ -161,6 +167,10 @@ export class InfoBox{
             this.loadingSpinner?.attr('opacity', 0)
         }
 
+        if(type=== InfoboxType.legend) {
+            this.root.attr('opacity', show ? 1 : 0)
+        }
+
         this.setPosition()
     }
 
@@ -169,10 +179,10 @@ export class InfoBox{
     }
 
     private setPosition(){
-        this.background_rect.attr('x', this.canvas.width/2 - this.infobox_width/2)
+        this.background_rect.attr('x', this.canvas.isMobileScreen ? 20 : this.canvas.width/2 - this.infobox_width/2)
             .attr('y', this.canvas.height/2 - this.infobox_height/2)
-        this.image.attr('x', this.canvas.width/2 - this.infobox_width/2 + this.infobox_image_left_padding).attr('y', this.canvas.height/2 - this.infobox_height/2 + this.infobox_image_top_padding)
-        let text_x = this.canvas.width/2 - this.infobox_width/2 + this.infobox_image_width + this.infobox_image_left_padding + 20
+        this.image?.attr('x', this.canvas.width/2 - this.infobox_width/2 + this.infobox_image_left_padding).attr('y', this.canvas.height/2 - this.infobox_height/2 + this.infobox_image_top_padding)
+        let text_x = this.canvas.isMobileScreen ? 40 : this.canvas.width/2 - this.infobox_width/2 + this.infobox_image_width + this.infobox_image_left_padding + 20
         this.title.attr('x', text_x).attr('y', this.canvas.height/2 - this.infobox_height/2 +  this.infobox_image_top_padding + 25)
         this.text.attr('x', text_x).attr('y', this.canvas.height/2 - this.infobox_height/2 + 80)
         this.line2[0].attr('x', text_x).attr('dy', '20px')
@@ -182,7 +192,7 @@ export class InfoBox{
 
         switch (this.currentType) {
             case InfoboxType.network_websocket_connecting:
-                this.loadingSpinner?.attr('x', this.canvas.width/2 + 180).attr('y', this.canvas.height/2 + 15)
+                this.loadingSpinner?.attr('x', this.canvas.isMobileScreen ? this.canvas.width/2 + 60 : this.canvas.width/2 + 180).attr('y', this.canvas.height/2 + 15)
                 break;
             case InfoboxType.network_database_can_not_connect:
                 this.loadingSpinner?.attr('x', text_x + 100).attr('y', this.canvas.height/2)
@@ -201,5 +211,6 @@ export enum InfoboxType {
     network_websocket_connecting,
     network_database_connecting,
     network_database_can_not_connect,
-    audio_enable
+    audio_enable,
+    legend
 }

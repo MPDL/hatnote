@@ -10,7 +10,7 @@ export const minerva_service_theme: ServiceTheme = {
     color1: 'rgb(2, 110, 153)',
     color2: 'rgb(224, 236, 241)',
     color3: 'rgb(231, 41, 111)',
-    header_title: 'Listen to Minerva Messenger',
+    header_title: 'Minerva Messenger',
     header_logo: MinervaLogo,
     carousel_time: 300000,
     header_y: 4,
@@ -22,18 +22,21 @@ export const minerva_service_theme: ServiceTheme = {
     },
     legend_items: [
         {
+            position_y_info_box: -20,
             position_x_small_title: 140,
             smallTitle1: 'direct',
             smallTitle2: 'message',
             event: ServiceEvent.minerva_direct_message
         },
         {
+            position_y_info_box: 35,
             position_x_small_title: 300,
             smallTitle1: 'private',
             smallTitle2: 'channel',
             event: ServiceEvent.minerva_private_message
         },
         {
+            position_y_info_box: 90,
             position_x_small_title: 450,
             smallTitle1: 'public',
             smallTitle2: 'channel',

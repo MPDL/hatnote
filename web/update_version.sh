@@ -8,4 +8,6 @@ fileToBeEdited=".env.defaults"
 lineToBeReplaced="2"
 # https://stackoverflow.com/questions/11145270/how-to-replace-an-entire-line-in-a-text-file-by-line-number
 # update version number, line number 2 in file .env.defaults will replaced
-sed -i "${lineToBeReplaced}s/.*/${lineStringReplacement}/" ${fileToBeEdited}
+# this is a portable solution that works on linux and mac
+# https://stackoverflow.com/questions/4247068/sed-command-with-i-option-failing-on-mac-but-works-on-linux
+sed -i '' -e "${lineToBeReplaced}s/.*/${lineStringReplacement}/" ${fileToBeEdited}
