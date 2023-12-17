@@ -1,18 +1,17 @@
 version: '3.8'
 
 services:
-  hatnote-staging-web:
+  web:
     build:
       context: https://github.com/MPDL/hatnote.git#staging:web
       dockerfile: Dockerfile
       target: staging
-    image: hatnote-staging-web
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
-      hatnote-staging-api:
+      api:
         condition: service_started
-  hatnote-staging-api:
+  api:
     build:
       context: https://github.com/MPDL/hatnote.git#staging:api
       dockerfile: Dockerfile
@@ -20,7 +19,6 @@ services:
       - LOG_ABS_PATH=$LOG_ABS_PATH
       - APP_ENVIRONMENT=$APP_ENVIRONMENT
       - APP_ENVIRONMENT_FILE_DIR=$APP_ENVIRONMENT_FILE_DIR
-    image: hatnote-staging-api
     ports:
       - "8181:8080"
     volumes:
