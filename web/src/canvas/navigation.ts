@@ -75,6 +75,7 @@ export class Navigation{
         let nextService = this.canvas.theme.carousel_service_order[this.currentServiceIndex]
         this.canvas.theme.set_current_theme(nextService);
         this.canvas.renderCurrentTheme()
+        this.canvas.hatnoteVisServiceChangedSubject.next(this.canvas.theme.current_service_theme.id_name)
     }
 
     private clearLegendItems(){
