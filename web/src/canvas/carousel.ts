@@ -47,6 +47,9 @@ export class Carousel {
                 if(!dbInfo.IsConnectionEstablished && !dbInfo.IsConnecting){
                     this.serviceError.delete(dbInfo.service)
                     this.serviceError.set(dbInfo.service, true)
+                } else {
+                    this.serviceError.delete(dbInfo.service)
+                    this.serviceError.set(dbInfo.service, false)
                 }
 
                 let serviceErrors = 0
