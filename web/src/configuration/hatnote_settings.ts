@@ -17,6 +17,7 @@ export class HatnoteSettings {
             max_life: 60000,
             circle_start_opacity: 0.75,
             kiosk_mode: false,
+            embedded_mode: false,
             debug_mode: false,
             carousel_mode: true,
             initialService: HatnoteVisService.Minerva,
@@ -143,6 +144,10 @@ export class HatnoteSettings {
             this._settings_data.kiosk_mode = true;
         }
 
+        if(url_search_parameters.has("embedded")){
+            this._settings_data.embedded_mode = true;
+        }
+
         let service_parameter = url_search_parameters.get("service")
         this._settings_data.carousel_mode = false;
         switch (service_parameter ) {
@@ -171,7 +176,8 @@ export interface SettingsData{
     sound_overlap: number,
     circle_start_opacity: number,
     max_life: number, // in ms
-    kiosk_mode: boolean,
+    kiosk_mode: boolean, // used for long running showcases of the website e.g. on a monitor in a hall
+    embedded_mode: boolean, // used for iframe integration
     debug_mode: boolean,
     carousel_mode: boolean,
     initialService: HatnoteVisService,

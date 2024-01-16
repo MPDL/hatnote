@@ -13,6 +13,7 @@ import {SettingsData} from "../configuration/hatnote_settings";
 import {HatnoteVisService} from "../service_event/model";
 import {Carousel} from "./carousel";
 import {Navigation} from "./navigation";
+import {MuteIcon} from "./mute_icon";
 
 export class Canvas {
     public readonly circles_layer: CirclesLayer;
@@ -24,6 +25,7 @@ export class Canvas {
     public readonly info_box_websocket: InfoBox;
     public readonly info_box_audio: InfoBox;
     public readonly info_box_legend: InfoBox;
+    public readonly mute_icon: MuteIcon;
     public readonly theme: Theme;
     public readonly settings: SettingsData;
     public readonly newCircleSubject: Subject<CircleData>
@@ -95,6 +97,10 @@ export class Canvas {
             this.carousel = new Carousel(this)
         }
 
+        // needs to be here because otherwise the transition animation layer of the carousel would lay above the mute icon
+        // and block the cursor event the mute icon
+        this.mute_icon = new MuteIcon(this)
+
         // needs to be added after the carousel transition because the transition layer spans over the entire screen
         // which captures mouse clicks that otherwise would not arrive at the navigation buttons
         if (this.isMobileScreen) {
@@ -104,7 +110,11 @@ export class Canvas {
         this.renderCurrentTheme();
 
         if(!settings.kiosk_mode && !settings.audio_mute){
-            this.info_box_audio.show(InfoboxType.audio_enable, true)
+            if(settings.embedded_mode){
+                this.mute_icon.show()
+            } else {
+                this.info_box_audio.show(InfoboxType.audio_enable, true)
+            }
         }
 
         window.onresize = (_) => this.windowUpdate();
@@ -158,5 +168,8 @@ export class Canvas {
 
         // update audio info box
         this.info_box_audio.windowUpdate()
+
+        // update mute icon
+        this.mute_icon.windowUpdate()
     }
 }
