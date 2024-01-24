@@ -103,7 +103,7 @@ export class Canvas {
 
         // needs to be added after the carousel transition because the transition layer spans over the entire screen
         // which captures mouse clicks that otherwise would not arrive at the navigation buttons
-        if (this.isMobileScreen) {
+        if (this.isMobileScreen && !this.settings.embedded_mode) {
             this.navigation = new Navigation(this)
         }
 
