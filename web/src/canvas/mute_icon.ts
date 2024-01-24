@@ -52,7 +52,7 @@ export class MuteIcon{
 
     private setPosition(){
         this.image.attr('x', this.canvas.width/2 - this.image_width/2).attr('y', this.canvas.height/2 - this.image_width)
-        let text_x: number = this.canvas.width/2 - this.image_width/2;
+        let text_x: number = this.canvas.width/2;
         this.text.attr('x', text_x).attr('y', (this.canvas.height/2 + 16))
         this.line1.attr('x', text_x)
     }
