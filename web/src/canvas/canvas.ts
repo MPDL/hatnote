@@ -98,7 +98,7 @@ export class Canvas {
         }
 
         // needs to be here because otherwise the transition animation layer of the carousel would lay above the mute icon
-        // and block the cursor event the mute icon
+        // and block the cursor event of the mute icon
         this.mute_icon = new MuteIcon(this)
 
         // needs to be added after the carousel transition because the transition layer spans over the entire screen
@@ -110,11 +110,7 @@ export class Canvas {
         this.renderCurrentTheme();
 
         if(!settings.kiosk_mode && !settings.audio_mute){
-            if(settings.embedded_mode){
-                this.mute_icon.show()
-            } else {
-                this.info_box_audio.show(InfoboxType.audio_enable, true)
-            }
+            this.mute_icon.show()
         }
 
         window.onresize = (_) => this.windowUpdate();

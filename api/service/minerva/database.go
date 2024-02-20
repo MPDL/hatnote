@@ -3,7 +3,6 @@ package minerva
 import (
 	"api/database"
 	"api/utils/log"
-	"api/utils/mail"
 	"fmt"
 	"strings"
 	"time"
@@ -41,7 +40,6 @@ func (dbc *Database) Init() error {
 		dbc.isConnecting = false
 		logMessage := "Can not connect to Minerva DB"
 		log.Error(logMessage, err, log.Minerva, log.Database)
-		mail.SendErrorMail(logMessage, err)
 		return err
 	}
 
@@ -110,7 +108,6 @@ func (dbc *Database) LoadMessagesFromTimepointUntilNow(fromTimepointMs int64, to
 	if queryError != nil {
 		logMessage := "Error while loading messages."
 		log.Error(logMessage, queryError, log.Minerva, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
@@ -177,7 +174,6 @@ func (dbc *Database) LoadIpAddressesFromUserFromTimepointUntilNow(userid string,
 	if queryError != nil {
 		logMessage := "Error while loading user ip addresses."
 		log.Error(logMessage, queryError, log.Minerva, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validUserIpAddresses, queryError
 	}
 
