@@ -3,7 +3,6 @@ package keeper
 import (
 	"api/database"
 	"api/utils/log"
-	"api/utils/mail"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"time"
@@ -42,7 +41,6 @@ func (dbc *Database) Init() error {
 		dbc.isConnecting = false
 		logMessage := "Can not connect to Keeper DB"
 		log.Error(logMessage, err, log.Keeper, log.Database)
-		mail.SendErrorMail(logMessage, err)
 		return err
 	}
 
@@ -116,7 +114,6 @@ func (dbc *Database) LoadFileCreationsAndEditings(fromTimepoint string, toTimepo
 	if queryError != nil {
 		logMessage := "Error while loading keeper file creations and editings."
 		log.Error(logMessage, queryError, log.Keeper, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
@@ -175,7 +172,6 @@ func (dbc *Database) LoadLibraryCreations(fromTimepoint string, toTimepoint stri
 	if queryError != nil {
 		logMessage := "Error while loading library creations."
 		log.Error(logMessage, queryError, log.Keeper, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
@@ -229,7 +225,6 @@ func (dbc *Database) LoadActivatedUsers(fromTimepointSeconds int64, toTimepointS
 	if queryError != nil {
 		logMessage := "Error while loading activated users."
 		log.Error(logMessage, queryError, log.Keeper, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
