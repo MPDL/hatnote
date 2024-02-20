@@ -211,6 +211,6 @@ export enum InfoboxType {
     network_websocket_connecting,
     network_database_connecting,
     network_database_can_not_connect,
-    audio_enable,
+    audio_enable, // nowhere used because it was dismissed in favour of the mute icon
     legend
 }

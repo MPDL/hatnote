@@ -3,7 +3,6 @@ package bloxberg
 import (
 	"api/database"
 	"api/utils/log"
-	"api/utils/mail"
 	"encoding/hex"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -40,7 +39,6 @@ func (dbc *Database) Init() error {
 		dbc.isConnecting = false
 		logMessage := "Can not connect to Minerva DB"
 		log.Error(logMessage, err, log.Bloxberg, log.Database)
-		mail.SendErrorMail(logMessage, err)
 		return err
 	}
 
@@ -110,7 +108,6 @@ func (dbc *Database) LoadBlocks(fromTimepoint string, toTimepoint string) (valid
 	if queryError != nil {
 		logMessage := "Error while loading bloxberg blocks."
 		log.Error(logMessage, queryError, log.Bloxberg, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
@@ -181,7 +178,6 @@ func (dbc *Database) LoadConfirmedTransactions(fromTimepoint string, toTimepoint
 	if queryError != nil {
 		logMessage := "Error while loading bloxberg confirmed transactions."
 		log.Error(logMessage, queryError, log.Bloxberg, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
@@ -253,7 +249,6 @@ func (dbc *Database) LoadLicensedContributors(fromTimepoint string, toTimepoint 
 	if queryError != nil {
 		logMessage := "Error while loading bloxberg LicensedContributors."
 		log.Error(logMessage, queryError, log.Bloxberg, log.Database)
-		mail.SendErrorMail(logMessage, queryError)
 		return validData, queryError
 	}
 
