@@ -7,16 +7,19 @@ export class MuteIcon{
     private readonly image: Selection<SVGImageElement, unknown, HTMLElement, any>;
     private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>;
     private readonly line1: Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+    private readonly background: Selection<SVGRectElement, unknown, HTMLElement, any>;
     private readonly image_width = 100;
     private readonly text_color = '#fff';
     private readonly canvas: Canvas;
 
+    // consists not only of the icon but also spans a transparent clickable container above everything
     constructor(canvas: Canvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g')
             .attr('id', 'qr_code')
             .attr('opacity', 0)
             .attr('cursor', 'auto')
+            .attr('pointer-events','none')
             .attr('id', 'mute_icon')
         this.image = this.root.append('image')
             .attr('href', QrCodeMinerva)
@@ -31,23 +34,32 @@ export class MuteIcon{
             .attr('text-anchor', 'middle')
         this.line1.text('Click here to unmute')
 
+        // needs to be added last so the click on this layer is not blocked by other elements
+        this.background = this.root.append('rect')
+            .attr('opacity', 0)
+            .attr('width', this.canvas.width)
+            .attr('height', this.canvas.height)
+            .attr('id', 'mute_icon_background')
+
         this.setPosition()
 
-        document.getElementById('mute_icon')?.addEventListener("click", (_) => {
+        document.getElementById('mute_icon_background')?.addEventListener("click", (_) => {
             this.hide();
         });
     }
 
     public windowUpdate(){
         this.setPosition();
+        this.background.attr('width', this.canvas.width)
+        this.background.attr('height', this.canvas.height)
     }
 
     public show(){
-        this.root.attr('opacity', 0.7).attr('cursor', 'pointer')
+        this.root.attr('opacity', 0.7).attr('cursor', 'pointer').attr('pointer-events','visiblePainted')
     }
 
     public hide(){
-        this.root.attr('opacity', 0).attr('cursor', 'auto')
+        this.root.attr('opacity', 0).attr('cursor', 'auto').attr('pointer-events','none')
     }
 
     private setPosition(){
