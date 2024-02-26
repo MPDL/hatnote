@@ -97,15 +97,15 @@ export class Canvas {
             this.carousel = new Carousel(this)
         }
 
-        // needs to be here because otherwise the transition animation layer of the carousel would lay above the mute icon
-        // and block the cursor event of the mute icon
-        this.mute_icon = new MuteIcon(this)
-
         // needs to be added after the carousel transition because the transition layer spans over the entire screen
         // which captures mouse clicks that otherwise would not arrive at the navigation buttons
         if (this.isMobileScreen && !this.settings.embedded_mode) {
             this.navigation = new Navigation(this)
         }
+
+        // needs to be here because otherwise the transition animation and mobile navigation layer of the carousel would lay above the mute icon
+        // and block the cursor event of the mute icon
+        this.mute_icon = new MuteIcon(this)
 
         this.renderCurrentTheme();
 
