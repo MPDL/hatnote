@@ -1,6 +1,6 @@
 import {easeBackOut, easeCircleOut, easeCubicOut, easeExpOut, easeQuadOut, Selection} from "d3";
 import {Canvas} from "./canvas";
-import MpdlLogo from "../../assets/images/logo-mpdl-twocolor-dark-var1-box.png";
+import MpdlLogo from "../../assets/images/logo-mpdl-twocolor-dark-var1.png";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
 
