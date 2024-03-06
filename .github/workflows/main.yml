@@ -1,4 +1,4 @@
-name: Certification
+name: Bloxberg.org certification
 
 on:
   pull_request:
