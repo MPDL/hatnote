@@ -1,0 +1,33 @@
+name: Certification
+
+on:
+  pull_request:
+  push:
+    branches:
+      - development
+      - staging
+      - production
+
+permissions:
+  contents: read
+
+jobs:
+  certify-code:
+    name: Certify code on bloxberg.org
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Bloxberg certifier
+        id: bloxberg-certifier
+        uses: bloxberg-org/bloxberg-certify-github-action@1.0.0
+        with:
+          authorName: Max Planck Digital Library
+          researchTitle: MPDL hatnote branch:${{ github.GITHUB_BASE_REF }} commit:${{ github.GITHUB_SHA }}
+          
+      - name: Print Output
+        id: output
+        run: echo -e "\nYour git branch has been successfully certified by bloxberg. To verify it you can copy paste the following into a json file and verify it on certify.bloxberg.org:\n\n##########\n" && echo "${{ steps.test-action.outputs.certificateVerification }}" && echo -e "\n##########"
