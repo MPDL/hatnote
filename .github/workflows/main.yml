@@ -23,11 +23,11 @@ jobs:
 
       - name: Bloxberg certifier
         id: bloxberg-certifier
-        uses: bloxberg-org/bloxberg-certify-github-action@1.0.0
+        uses: bloxberg-org/bloxberg-certify-github-action@v1.0.1
         with:
           authorName: Max Planck Digital Library
           researchTitle: ${{github.repository}} ${{github.ref_type}} ${{github.ref}} ${{github.sha}}
           
-      - name: Print Output
+      - name: Print certification
         id: output
         run: echo -e "\nYour git branch has been successfully certified by bloxberg. To verify it you can copy paste the following into a json file and verify it on certify.bloxberg.org:\n\n##########\n" && echo "${{ steps.bloxberg-certifier.outputs.certificateVerification }}" && echo -e "\n##########"
