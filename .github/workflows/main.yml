@@ -26,7 +26,7 @@ jobs:
         uses: bloxberg-org/bloxberg-certify-github-action@1.0.0
         with:
           authorName: Max Planck Digital Library
-          researchTitle: MPDL hatnote branch:${{ github.GITHUB_BASE_REF }} commit:${{ github.GITHUB_SHA }}
+          researchTitle: MPDL hatnote branch ${{github.base_ref}} commit ${{github.sha}}
           
       - name: Print Output
         id: output
