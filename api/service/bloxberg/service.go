@@ -10,6 +10,7 @@ import (
 	"api/websocket"
 	"api/world_map"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -163,6 +164,9 @@ func (sc *Service) processEvent() {
 	log.Debug("create websocket data for bloxberg.", log.Bloxberg, log.Service)
 	var websocketEventData websocket.BloxbergData
 	for _, block := range blocks {
+		log.Debug(fmt.Sprintf("Block: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
+			block.MinerHash, sc.WorldMapData[block.MinerHash].Coordinate.Lat, sc.WorldMapData[block.MinerHash].Coordinate.Long,
+			len(sc.WorldMapData)), log.Bloxberg, log.Service)
 		websocketEventData.Blocks = append(websocketEventData.Blocks, websocket.BloxbergBlock{
 			ByteSize:   block.ByteSize,
 			InsertedAt: block.InsertedAt,
@@ -174,6 +178,9 @@ func (sc *Service) processEvent() {
 
 	// create websocket data for ConfirmedTransaction
 	for _, confirmedTransaction := range confirmedTransacttions {
+		log.Debug(fmt.Sprintf("Confirmed transaction: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
+			confirmedTransaction.BlockMinerHash, sc.WorldMapData[confirmedTransaction.BlockMinerHash].Coordinate.Lat,
+			sc.WorldMapData[confirmedTransaction.BlockMinerHash].Coordinate.Long, len(sc.WorldMapData)), log.Bloxberg, log.Service)
 		websocketEventData.ConfirmedTransactions = append(websocketEventData.ConfirmedTransactions, websocket.BloxbergConfirmedTransaction{
 			TransactionFee: confirmedTransaction.TransactionFee,
 			UpdatedAt:      confirmedTransaction.UpdatedAt,
