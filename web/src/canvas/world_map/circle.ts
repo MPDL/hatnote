@@ -25,7 +25,7 @@ export class Circle{
             .attr('cy', y)
             .attr("data-hatnote-event-type", circleData.type)
             .attr("data-hatnote-service-name", service)
-            .style('fill', '#eb4034')
+            .style('fill', this.circlesLayer.canvas.theme.getThemeColor(circleData.type))
             .attr('fill-opacity', 0.75)
             .attr('r', 0)
             .transition()

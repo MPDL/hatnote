@@ -8,6 +8,9 @@ WORKDIR /app
 # Add source code
 ADD . /app
 
+# Add public ssl certificate
+ADD hatnote.crt /etc/ssl/certs/hatnote.crt
+
 # Download Go modules
 RUN go mod download
 

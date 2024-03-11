@@ -1,6 +1,5 @@
 import {DelayedCircleEvent, ServiceEvent} from "./model";
 import {getRandomIntInclusive} from "../util/random";
-import c from "config";
 
 export class EventBufferData {
     private eventCirclesMap: Map<string, DelayedCircleEvent[]>
@@ -106,12 +105,14 @@ export class EventBufferData {
         setTimeout(function(){
             if(thisBufferData.hatnote_map){
                 for (let [key, circles] of thisBufferData.eventCirclesMap) {
-                    thisBufferData.publishCircleEvent([{
-                        event: circles[0].event, title: thisBufferData.generateSingleCircleTitle(circles[0].event, circles[0]),
-                        radius: 4,
-                        delay: 0,
-                        location: circles[0].location
-                    }])
+                    if(circles[0].event === ServiceEvent.bloxberg_confirmed_transaction || circles[0].event === ServiceEvent.bloxberg_block){
+                        thisBufferData.publishCircleEvent([{
+                            event: circles[0].event, title: thisBufferData.generateSingleCircleTitle(circles[0].event, circles[0]),
+                            radius: 4,
+                            delay: 0,
+                            location: circles[0].location
+                        }])
+                    }
                 }
             } else {
                 let firstCircle = thisBufferData.eventCirclesArray[0];
