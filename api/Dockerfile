@@ -25,4 +25,4 @@ RUN go build -o ./api
 EXPOSE 8181
 
 # Run
-CMD ./api -logAbsPath=$LOG_ABS_PATH -appEnvironment=$APP_ENVIRONMENT -appEnvironmentFileDir=$APP_ENVIRONMENT_FILE_DIR
+CMD ./api -logAbsPath=$LOG_ABS_PATH -logLevel=$LOG_LEVEL -appEnvironment=$APP_ENVIRONMENT -appEnvironmentFileDir=$APP_ENVIRONMENT_FILE_DIR
