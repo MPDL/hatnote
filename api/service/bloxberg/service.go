@@ -240,5 +240,9 @@ func (sc *Service) loadWorldMapData() {
 		mail.SendErrorMail(logMessage, worldMapErr)
 	} else {
 		sc.WorldMapData = worldMapData
+		log.Debug(fmt.Sprintf("Inside load: Location map:"), log.WorldMap)
+		for k, v := range sc.WorldMapData {
+			log.Debug(fmt.Sprintf("Location map: id: %s, lat: %f,%f", k, v.Coordinate.Lat, v.Coordinate.Long), log.WorldMap)
+		}
 	}
 }
