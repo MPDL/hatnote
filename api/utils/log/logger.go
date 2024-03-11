@@ -13,10 +13,10 @@ var (
 	infoLogger    *log.Logger
 	debugLogger   *log.Logger
 	traceLogger   *log.Logger
-	logLevel      int
+	LogLevel      int
 )
 
-func Init(LogAbsolutePath string, LogMaxSize int, LogMaxBackups int, LogMaxAge int, LogCompress bool, LogLevel int,
+func Init(LogAbsolutePath string, LogMaxSize int, LogMaxBackups int, LogMaxAge int, LogCompress bool, LogLevelParameter int,
 	appEnvironment string) {
 	// Set up logging
 	output := &lumberjack.Logger{
@@ -26,7 +26,7 @@ func Init(LogAbsolutePath string, LogMaxSize int, LogMaxBackups int, LogMaxAge i
 		MaxAge:     LogMaxAge,   // days
 		Compress:   LogCompress, // compress backed up log files
 	}
-	logLevel = LogLevel
+	LogLevel = LogLevelParameter
 
 	fatalLogger = log.New(output, appEnvironment+" [FATAL] ", log.Ldate|log.Ltime)
 	errorLogger = log.New(output, appEnvironment+" [ERROR] ", log.Ldate|log.Ltime)
@@ -37,37 +37,37 @@ func Init(LogAbsolutePath string, LogMaxSize int, LogMaxBackups int, LogMaxAge i
 }
 
 func Fatal(msg string, err error, concerns ...Concern) {
-	if logLevel >= 1 {
+	if LogLevel >= 1 {
 		fatalLogger.Fatalln(concernsToString(concerns...), msgToString(msg, err))
 	}
 }
 
 func Error(msg string, err error, concerns ...Concern) {
-	if logLevel >= 2 {
+	if LogLevel >= 2 {
 		errorLogger.Println(concernsToString(concerns...), msgToString(msg, err))
 	}
 }
 
 func Warn(msg string, concerns ...Concern) {
-	if logLevel >= 3 {
+	if LogLevel >= 3 {
 		warningLogger.Println(concernsToString(concerns...), msgToString(msg, nil))
 	}
 }
 
 func Info(msg string, concerns ...Concern) {
-	if logLevel >= 4 {
+	if LogLevel >= 4 {
 		infoLogger.Println(concernsToString(concerns...), msgToString(msg, nil))
 	}
 }
 
 func Debug(msg string, concerns ...Concern) {
-	if logLevel >= 5 {
+	if LogLevel >= 5 {
 		debugLogger.Println(concernsToString(concerns...), msgToString(msg, nil))
 	}
 }
 
 func Trace(msg string, concerns ...Concern) {
-	if logLevel >= 6 {
+	if LogLevel >= 6 {
 		traceLogger.Println(concernsToString(concerns...), msgToString(msg, nil))
 	}
 }

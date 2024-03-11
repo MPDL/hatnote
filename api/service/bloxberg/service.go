@@ -10,7 +10,6 @@ import (
 	"api/websocket"
 	"api/world_map"
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -163,14 +162,7 @@ func (sc *Service) processEvent() {
 	// create websocket data for blocks
 	log.Debug("create websocket data for bloxberg.", log.Bloxberg, log.Service)
 	var websocketEventData websocket.BloxbergData
-	log.Debug(fmt.Sprintf("Inside processing: Location map:"), log.WorldMap)
-	for k, v := range sc.WorldMapData {
-		log.Debug(fmt.Sprintf("Location map: id: %s, lat: %f,%f", k, v.Coordinate.Lat, v.Coordinate.Long), log.WorldMap)
-	}
 	for _, block := range blocks {
-		log.Debug(fmt.Sprintf("Block: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
-			block.MinerHash, sc.WorldMapData[block.MinerHash].Coordinate.Lat, sc.WorldMapData[block.MinerHash].Coordinate.Long,
-			len(sc.WorldMapData)), log.Bloxberg, log.Service)
 		websocketEventData.Blocks = append(websocketEventData.Blocks, websocket.BloxbergBlock{
 			ByteSize:   block.ByteSize,
 			InsertedAt: block.InsertedAt,
@@ -182,13 +174,6 @@ func (sc *Service) processEvent() {
 
 	// create websocket data for ConfirmedTransaction
 	for _, confirmedTransaction := range confirmedTransacttions {
-		log.Debug(fmt.Sprintf("Confirmed transaction: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
-			confirmedTransaction.BlockMinerHash, sc.WorldMapData[confirmedTransaction.BlockMinerHash].Coordinate.Lat,
-			sc.WorldMapData[confirmedTransaction.BlockMinerHash].Coordinate.Long, len(sc.WorldMapData)), log.Bloxberg, log.Service)
-		var test = sc.WorldMapData[confirmedTransaction.BlockMinerHash]
-		log.Debug(fmt.Sprintf("Test: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
-			confirmedTransaction.BlockMinerHash, test.Coordinate.Lat,
-			test.Coordinate.Long, len(sc.WorldMapData)), log.Bloxberg, log.Service)
 		websocketEventData.ConfirmedTransactions = append(websocketEventData.ConfirmedTransactions, websocket.BloxbergConfirmedTransaction{
 			TransactionFee: confirmedTransaction.TransactionFee,
 			UpdatedAt:      confirmedTransaction.UpdatedAt,
@@ -244,9 +229,5 @@ func (sc *Service) loadWorldMapData() {
 		mail.SendErrorMail(logMessage, worldMapErr)
 	} else {
 		sc.WorldMapData = worldMapData
-		log.Debug(fmt.Sprintf("Inside load: Location map:"), log.WorldMap)
-		for k, v := range sc.WorldMapData {
-			log.Debug(fmt.Sprintf("Location map: id: %s, lat: %f,%f", k, v.Coordinate.Lat, v.Coordinate.Long), log.WorldMap)
-		}
 	}
 }

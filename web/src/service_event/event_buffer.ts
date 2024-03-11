@@ -4,11 +4,13 @@ import {getRandomIntInclusive} from "../util/random";
 
 export class EventBuffer {
     private readonly eventBuffer: Map<ServiceEvent, EventBufferData>;
+    private readonly hatnote_map: boolean;
 
     constructor(default_event_buffer_timespan: number, publishCircleEvent: (circleEvent: DelayedCircleEvent[]) => void, hatnote_map: boolean) {
+        this.hatnote_map = hatnote_map;
         this.eventBuffer = new Map([
             [ServiceEvent.bloxberg_block, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan)],
-            [ServiceEvent.bloxberg_confirmed_transaction, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan, 1200)],
+            [ServiceEvent.bloxberg_confirmed_transaction, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan, hatnote_map ? 1000 : 1200)],
             [ServiceEvent.keeper_file_create, new EventBufferData(publishCircleEvent, hatnote_map, 1000,1000)], // Keeper only returns time precision of seconds
             [ServiceEvent.keeper_file_edit, new EventBufferData(publishCircleEvent, hatnote_map, 1000,1000)], // Keeper only returns time precision of seconds
             [ServiceEvent.keeper_new_library, new EventBufferData(publishCircleEvent, hatnote_map, 1000,1000)], // Keeper only returns time precision of seconds
@@ -30,6 +32,7 @@ export class EventBuffer {
             return
 
         if(eventBufferData.isEventCirclesArrayEmpty()){
+            let that = this;
             setTimeout(function(){
                 switch (circleEvent) {
                     case ServiceEvent.keeper_file_create:
@@ -38,8 +41,10 @@ export class EventBuffer {
                         eventBufferData?.splitBufferAndRelease(splitRandom)
                         break;
                     case ServiceEvent.bloxberg_confirmed_transaction:
-                        let splitRandomBloxberg = 3
-                        eventBufferData?.splitBufferAndRelease(splitRandomBloxberg)
+                        if (!that.hatnote_map) {
+                            let splitRandomBloxberg = 3
+                            eventBufferData?.splitBufferAndRelease(splitRandomBloxberg)
+                        }
                         break;
                     default:
                         eventBufferData?.releaseBuffer()

@@ -56,7 +56,7 @@ export class Circle{
         const popUpContainer = this.circlesLayer.canvas.appContainer.append("div");
         popUpContainer
             .style('position', 'absolute')
-            .style('top', `${y + 10}px`)
+            .style('top', `${y - this.circlesLayer.canvas.theme.header_height + 10}px`)
             .style('left', `${x + 10}px`)
             .style('padding', '4px')
             .style('border-radius', '1px')
