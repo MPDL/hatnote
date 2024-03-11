@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func (idc *Controller) Load() (worldMapDataMap map[string]Location, e error) {
 
 	// generate map from array and use this in bloxberg service
 	for _, worldMapEntry := range worldMapDataArray {
-		worldMapDataMap[worldMapEntry.Id] = Location{
+		worldMapDataMap[strings.ToLower(worldMapEntry.Id)] = Location{
 			Coordinate: worldMapEntry.Coordinate,
 			Country:    worldMapEntry.Country,
 		}
