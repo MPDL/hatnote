@@ -163,6 +163,10 @@ func (sc *Service) processEvent() {
 	// create websocket data for blocks
 	log.Debug("create websocket data for bloxberg.", log.Bloxberg, log.Service)
 	var websocketEventData websocket.BloxbergData
+	log.Debug(fmt.Sprintf("Inside processing: Location map:"), log.WorldMap)
+	for k, v := range sc.WorldMapData {
+		log.Debug(fmt.Sprintf("Location map: id: %s, lat: %f,%f", k, v.Coordinate.Lat, v.Coordinate.Long), log.WorldMap)
+	}
 	for _, block := range blocks {
 		log.Debug(fmt.Sprintf("Block: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
 			block.MinerHash, sc.WorldMapData[block.MinerHash].Coordinate.Lat, sc.WorldMapData[block.MinerHash].Coordinate.Long,
