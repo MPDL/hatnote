@@ -44,6 +44,8 @@ export class EventBuffer {
                         if (!that.hatnote_map) {
                             let splitRandomBloxberg = 3
                             eventBufferData?.splitBufferAndRelease(splitRandomBloxberg)
+                        } else {
+                            eventBufferData?.releaseBuffer()
                         }
                         break;
                     default:
