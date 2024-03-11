@@ -8,6 +8,7 @@ import (
 	"api/utils/log"
 	"api/utils/mail"
 	"api/websocket"
+	"api/world_map"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -27,7 +28,7 @@ type Service struct {
 	dbReconnector             database.Reconnector
 }
 
-func (mmhc *Service) Init(institutesController institutes.Controller) {
+func (mmhc *Service) Init(institutesController institutes.Controller, _ world_map.Controller) {
 	log.Info("Init Minerva service.", log.Minerva, log.Service)
 	mmhc.InstitutesController = institutesController
 	var institutesData, instituteErr = mmhc.InstitutesController.Load()
@@ -294,3 +295,5 @@ func (mmhc *Service) UpdateInstitutesData() {
 		mmhc.InstitutesData = institutesData
 	}
 }
+
+func (sc *Service) UpdateWorldMapData() {}

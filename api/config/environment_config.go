@@ -4,6 +4,7 @@ import (
 	"api/institutes"
 	"api/service"
 	"api/utils/mail"
+	"api/world_map"
 	"fmt"
 	"strings"
 )
@@ -12,6 +13,7 @@ type EnvironmentConfig struct {
 	Services      []service.ServiceConfig `yaml:"services"`
 	InstituteData institutes.Config       `yaml:"instituteData"`
 	Email         mail.Config             `yaml:"email"`
+	WorldMap      world_map.Config        `yaml:"worldMap"`
 }
 
 func (c EnvironmentConfig) ConfigToString() string {
@@ -41,5 +43,9 @@ func (c EnvironmentConfig) ConfigToString() string {
 	sb.WriteString(fmt.Sprintln("    SmtpPort: ", c.Email.SmtpPort))
 	sb.WriteString(fmt.Sprintln("    FromAddress: ", c.Email.FromAddress))
 	sb.WriteString(fmt.Sprintln("    ToAddress: ", c.Email.ToAddress))
+	sb.WriteString("  World map:\n")
+	sb.WriteString(fmt.Sprintln("    SourceUrl: ", c.WorldMap.SourceUrl))
+	sb.WriteString(fmt.Sprintln("    PeriodicSync: ", c.WorldMap.PeriodicSync))
+	sb.WriteString(fmt.Sprintln("    ApiPassword: ", c.WorldMap.ApiPassword))
 	return sb.String()
 }

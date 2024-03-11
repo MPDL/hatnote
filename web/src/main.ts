@@ -1,6 +1,6 @@
 import {BehaviorSubject, Subject} from "rxjs";
 import {BannerData, CircleData, DatabaseInfo, NetworkInfoboxData} from "./observable/model";
-import {Canvas} from "./canvas/canvas";
+import {ListenToCanvas as ListenToCanvas} from "./canvas/listen/listenToCanvas";
 import {HatnoteAudio} from "./audio/hatnote_audio";
 import {HatnoteSettings} from "./configuration/hatnote_settings";
 import {Theme} from "./theme/theme";
@@ -8,11 +8,13 @@ import {EventBridge} from "./service_event/event_bridge";
 import {WebsocketManager} from "./websocket/websocket";
 import {HatnoteVisService} from "./service_event/model";
 import {HelpPage} from "./help/help_page";
+import {WorldMapCanvas as WorldMapCanvas} from "./canvas/world_map/worldMapCanvas";
+import {select} from "d3";
 
 main();
 
 function main(){
-    document.body.appendChild(component());
+    let appContainer = document.body.appendChild(component());
 
     // load settings
     let settings = new HatnoteSettings();
@@ -37,11 +39,19 @@ function main(){
     let updateVersionSubject: Subject<[string,number]> = new Subject()
 
     // build canvas
-    new Canvas(theme, settings_data, newCircleSubject, newBannerSubject,
-        showAudioInfoboxSubject, showWebsocketInfoboxSubject, updateVersionSubject, hatnoteVisServiceChangedSubject, updateDatabaseInfoSubject)
+    if (settings_data.map) {
+        new WorldMapCanvas(theme, settings_data, newCircleSubject,
+            showWebsocketInfoboxSubject, updateVersionSubject, updateDatabaseInfoSubject, select(appContainer))
+    } else {
+        new ListenToCanvas(theme, settings_data, newCircleSubject, newBannerSubject,
+            showAudioInfoboxSubject, showWebsocketInfoboxSubject, updateVersionSubject, hatnoteVisServiceChangedSubject, updateDatabaseInfoSubject,select(appContainer))
+    }
 
     // load audio
-    let audio = new HatnoteAudio(settings_data, showAudioInfoboxSubject);
+    let audio;
+    if (!settings_data.map) {
+        audio = new HatnoteAudio(settings_data, showAudioInfoboxSubject);
+    }
 
     // init event bridge
     let event_bridge = new EventBridge(audio, newCircleSubject, newBannerSubject, updateVersionSubject,
@@ -54,6 +64,7 @@ function main(){
 function component() {
     const element = document.createElement('div');
     element.setAttribute("id", "app");
+    element.setAttribute('style', 'height: 100vh')
 
     return element;
 }

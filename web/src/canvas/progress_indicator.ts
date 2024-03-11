@@ -1,5 +1,5 @@
 import { easeLinear, Selection, transition} from "d3";
-import {Canvas} from "./canvas";
+import {ListenToCanvas} from "./listen/listenToCanvas";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
 
@@ -11,9 +11,9 @@ export class ProgressIndicator{
         return this._currentServiceIndicator;
     }
 
-    private readonly canvas: Canvas
+    private readonly canvas: ListenToCanvas
 
-    constructor(canvas: Canvas) {
+    constructor(canvas: ListenToCanvas) {
         this.canvas = canvas
         this.service_indicators = new Map<HatnoteVisService, ServiceProgressIndicator>()
         canvas.theme.service_themes.forEach(service => {
@@ -35,15 +35,15 @@ export class ProgressIndicator{
 }
 
 class ServiceProgressIndicator{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly bg: Selection<SVGRectElement, unknown, HTMLElement, any>
-    private readonly fg: Selection<SVGRectElement, unknown, HTMLElement, any>
-    private readonly textBox: Selection<SVGRectElement, unknown, HTMLElement, any>
-    private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>
+    private readonly root: Selection<SVGGElement, unknown, null, any>
+    private readonly bg: Selection<SVGRectElement, unknown, null, any>
+    private readonly fg: Selection<SVGRectElement, unknown, null, any>
+    private readonly textBox: Selection<SVGRectElement, unknown, null, any>
+    private readonly text: Selection<SVGTextElement, unknown, null, any>
     public readonly service_id: HatnoteVisService
-    private readonly canvas: Canvas
+    private readonly canvas: ListenToCanvas
 
-    constructor(canvas: Canvas, service_theme: ServiceTheme) {
+    constructor(canvas: ListenToCanvas, service_theme: ServiceTheme) {
         this.canvas = canvas;
         let progress_indicator_width = canvas.theme.progress_indicator_width(canvas.width);
         let pos_x = canvas.theme.progress_indicator_pos_x(service_theme.id_name, canvas.width, progress_indicator_width, canvas.theme.progress_indicator_gap_width);

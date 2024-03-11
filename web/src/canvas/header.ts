@@ -1,23 +1,25 @@
 import {Selection} from "d3";
-import {Canvas} from "./canvas";
 import MinervaLogo from "../../assets/images/minervamessenger-banner-kussmund+bulb.png";
 import {LegendItem} from "./legend_item";
 import {ServiceTheme} from "../theme/model";
 import {environmentVariables} from "../configuration/environment";
+import {Canvas} from "./canvas";
 
 export class Header{
     public readonly canvas: Canvas;
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly background_rect: Selection<SVGRectElement, unknown, HTMLElement, any>
-    private readonly title: Selection<SVGTextElement, unknown, HTMLElement, any>
-    private readonly title0: Selection<SVGTextElement, unknown, HTMLElement, any>
-    private readonly logo: Selection<SVGImageElement, unknown, HTMLElement, any>
-    private readonly updateBox: Selection<SVGRectElement, unknown, HTMLElement, any>
-    private readonly updateText: Selection<SVGTextElement, unknown, HTMLElement, any>
+    private readonly isMobileScreen: boolean;
+    private readonly root: Selection<SVGGElement, unknown, null, any>
+    private readonly background_rect: Selection<SVGRectElement, unknown, null, any>
+    private readonly title: Selection<SVGTextElement, unknown, null, any>
+    private readonly title0: Selection<SVGTextElement, unknown, null, any>
+    private readonly logo: Selection<SVGImageElement, unknown, null, any>
+    private readonly updateBox: Selection<SVGRectElement, unknown, null, any>
+    private readonly updateText: Selection<SVGTextElement, unknown, null, any>
     private readonly legend_items: LegendItem[] = [];
 
-    constructor(canvas: Canvas) {
+    constructor(canvas: Canvas, isMobileScreen: boolean) {
         this.canvas = canvas;
+        this.isMobileScreen = isMobileScreen;
 
         this.root = canvas.appendSVGElement('g')
             .attr('id', 'header')
@@ -37,14 +39,14 @@ export class Header{
         this.title = this.root.append('text')
             .text('Hatnote title')
             .attr('font-family', 'HatnoteVisBold')
-            .attr('font-size', this.canvas.isMobileScreen ? '22px' : '32px')
+            .attr('font-size', this.isMobileScreen ? '22px' : '32px')
             .attr('fill', canvas.theme.header_text_color)
-            .attr('x', this.canvas.isMobileScreen ? 174 : 224).attr('y', canvas.theme.header_height/2 + 8.5)
+            .attr('x', this.isMobileScreen ? 174 : 224).attr('y', canvas.theme.header_height/2 + 8.5)
 
         this.title0 = this.root.append('text')
             .text('Listen to')
             .attr('font-family', 'HatnoteVisNormal')
-            .attr('font-size', this.canvas.isMobileScreen ? '22px' : '32px')
+            .attr('font-size', this.isMobileScreen ? '22px' : '32px')
             .attr('fill', canvas.theme.header_text_color)
             .attr('x', 70).attr('y', canvas.theme.header_height/2 + 8.5)
 
@@ -66,7 +68,7 @@ export class Header{
             .attr('font-size', '16px')
             .attr('fill', '#fff')
 
-        if(!this.canvas.isMobileScreen){
+        if(!this.isMobileScreen){
             for (let i = 0; i < 3; i++) {
                 this.legend_items.push(new LegendItem(this, undefined, this.canvas))
             }
@@ -89,7 +91,7 @@ export class Header{
         }
     }
 
-    public appendSVGElement(type: string): Selection<SVGGElement, unknown, HTMLElement, any> {
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, null, any> {
         return this.root.append(type)
     }
 

@@ -8,6 +8,7 @@ import (
 	"api/service/minerva"
 	"api/utils/log"
 	"api/websocket"
+	"api/world_map"
 	"errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -16,6 +17,7 @@ import (
 
 type Dependencies struct {
 	InstitutesDataController institutes.Controller
+	WorldMapDataController   world_map.Controller
 	HatnoteServiceController []service.ServiceInterface
 }
 
@@ -96,6 +98,7 @@ func loadConfigFromFile(fileName string) (config EnvironmentConfig, loadError er
 func hatnoteDependencies(services []service.ServiceConfig) *Dependencies {
 	dependencies := &Dependencies{
 		InstitutesDataController: institutes.Controller{},
+		WorldMapDataController:   world_map.Controller{},
 		HatnoteServiceController: make([]service.ServiceInterface, len(services)),
 	}
 
@@ -127,6 +130,7 @@ func hatnoteDependencies(services []service.ServiceConfig) *Dependencies {
 func hatnoteMockDbDependencies(services []service.ServiceConfig) *Dependencies {
 	dependencies := &Dependencies{
 		InstitutesDataController: institutes.Controller{},
+		WorldMapDataController:   world_map.Controller{},
 		HatnoteServiceController: make([]service.ServiceInterface, len(services)),
 	}
 
@@ -158,6 +162,7 @@ func hatnoteMockDbDependencies(services []service.ServiceConfig) *Dependencies {
 func hatnoteMockWsDbDependencies(services []service.ServiceConfig) *Dependencies {
 	dependencies := &Dependencies{
 		InstitutesDataController: institutes.Controller{},
+		WorldMapDataController:   world_map.Controller{},
 		HatnoteServiceController: make([]service.ServiceInterface, len(services)),
 	}
 

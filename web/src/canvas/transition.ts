@@ -1,25 +1,25 @@
 import {easeBackOut, easeCircleOut, easeCubicOut, easeExpOut, easeQuadOut, Selection} from "d3";
-import {Canvas} from "./canvas";
+import {ListenToCanvas} from "./listen/listenToCanvas";
 import MpdlLogo from "../../assets/images/logo-mpdl-twocolor-dark-var1.png";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
 
 export class Transition{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly circle3: Selection<SVGCircleElement, unknown, HTMLElement, any>;
-    private readonly circle2: Selection<SVGCircleElement, unknown, HTMLElement, any>;
-    private readonly circle1: Selection<SVGCircleElement, unknown, HTMLElement, any>;
-    private readonly circles_path: Selection<SVGPathElement, unknown, HTMLElement, any>;
-    private readonly mask:  Selection<SVGMaskElement, unknown, HTMLElement, any>;
-    private readonly mask_circle:  Selection<SVGCircleElement, unknown, HTMLElement, any>;
-    private readonly transition_screen: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly background:  Selection<SVGRectElement, unknown, HTMLElement, any>;
-    private readonly mpdl_logo:  Selection<SVGImageElement, unknown, HTMLElement, any>;
-    private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>;
-    private readonly service_logo: Selection<SVGImageElement, unknown, HTMLElement, any>;
-    private readonly canvas: Canvas;
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly circle3: Selection<SVGCircleElement, unknown, null, any>;
+    private readonly circle2: Selection<SVGCircleElement, unknown, null, any>;
+    private readonly circle1: Selection<SVGCircleElement, unknown, null, any>;
+    private readonly circles_path: Selection<SVGPathElement, unknown, null, any>;
+    private readonly mask:  Selection<SVGMaskElement, unknown, null, any>;
+    private readonly mask_circle:  Selection<SVGCircleElement, unknown, null, any>;
+    private readonly transition_screen: Selection<SVGGElement, unknown, null, any>;
+    private readonly background:  Selection<SVGRectElement, unknown, null, any>;
+    private readonly mpdl_logo:  Selection<SVGImageElement, unknown, null, any>;
+    private readonly text: Selection<SVGTextElement, unknown, null, any>;
+    private readonly service_logo: Selection<SVGImageElement, unknown, null, any>;
+    private readonly canvas: ListenToCanvas;
 
-    constructor(canvas: Canvas) {
+    constructor(canvas: ListenToCanvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'transition_layer').attr('opacity', 0)
 

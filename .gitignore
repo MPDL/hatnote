@@ -43,6 +43,8 @@ web/.env.development.local
 api/.env*
 api/docker-compose-postgres.yml
 api/hatnoteapp.log
+api/bloxberg-map-validators.json
+api/mock-bloxberg-map-validators.json
 api/institute-data-mock.json
 api/institute-data-mock-2.json
 api/keeperx.json

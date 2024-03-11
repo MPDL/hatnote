@@ -6,11 +6,11 @@ import {Theme} from "../theme/theme";
 import {Canvas} from "./canvas";
 
 export class LegendItem{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any> | undefined;
-    private readonly title: Selection<SVGTextElement, unknown, HTMLElement, any> | undefined;
-    private readonly smallTitle1: Selection<SVGTextElement, unknown, HTMLElement, any> | undefined;
-    private readonly smallTitle2: Selection<SVGTextElement, unknown, HTMLElement, any> | undefined;
-    private readonly circle: Selection<SVGCircleElement, unknown, HTMLElement, any> | undefined;
+    private readonly root: Selection<SVGGElement, unknown, null, any> | undefined;
+    private readonly title: Selection<SVGTextElement, unknown, null, any> | undefined;
+    private readonly smallTitle1: Selection<SVGTextElement, unknown, null, any> | undefined;
+    private readonly smallTitle2: Selection<SVGTextElement, unknown, null, any> | undefined;
+    private readonly circle: Selection<SVGCircleElement, unknown, null, any> | undefined;
     private readonly header: Header | undefined;
     private readonly legendInfoBox: InfoBox | undefined;
     private readonly canvas: Canvas;

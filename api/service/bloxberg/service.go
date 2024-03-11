@@ -6,7 +6,9 @@ import (
 	"api/institutes"
 	"api/service"
 	"api/utils/log"
+	"api/utils/mail"
 	"api/websocket"
+	"api/world_map"
 	"encoding/json"
 	"time"
 )
@@ -14,6 +16,8 @@ import (
 type Service struct {
 	DatabaseController  DatabaseInterface
 	WebsocketController websocket.WebsocketInterface
+	WorldMapController  world_map.Controller
+	WorldMapData        map[string]world_map.Location
 	Config              service.ServiceConfig
 	ticker              *time.Ticker
 	done                chan bool
@@ -21,8 +25,13 @@ type Service struct {
 	dbReconnector       database.Reconnector
 }
 
-func (sc *Service) Init(_ institutes.Controller) {
+func (sc *Service) Init(_ institutes.Controller, worldMapController world_map.Controller) {
 	log.Info("Init Bloxberg service.", log.Bloxberg, log.Service)
+	// world map controller
+	sc.WorldMapController = worldMapController
+	sc.loadWorldMapData()
+
+	// db reconnector
 	sc.dbReconnector = database.Reconnector{
 		NextDbReconnect:       time.Time{},
 		NumberOfDbReconnects:  0,
@@ -159,6 +168,7 @@ func (sc *Service) processEvent() {
 			InsertedAt: block.InsertedAt,
 			Miner:      block.Miner,
 			MinerHash:  block.MinerHash,
+			Location:   sc.WorldMapData[block.MinerHash],
 		})
 	}
 
@@ -169,6 +179,7 @@ func (sc *Service) processEvent() {
 			UpdatedAt:      confirmedTransaction.UpdatedAt,
 			BlockMiner:     confirmedTransaction.BlockMiner,
 			BlockMinerHash: confirmedTransaction.BlockMinerHash,
+			Location:       sc.WorldMapData[confirmedTransaction.BlockMinerHash],
 		})
 	}
 
@@ -204,3 +215,19 @@ func (sc *Service) processEvent() {
 }
 
 func (sc *Service) UpdateInstitutesData() {}
+
+func (sc *Service) UpdateWorldMapData() {
+	sc.loadWorldMapData()
+}
+
+func (sc *Service) loadWorldMapData() {
+	// no need to use mutex lock/unlock since the usage of the data is not sensible
+	var worldMapData, worldMapErr = sc.WorldMapController.Load()
+	if worldMapErr != nil {
+		logMessage := "Error while loading world map data."
+		log.Error(logMessage, worldMapErr, log.Bloxberg, log.Service)
+		mail.SendErrorMail(logMessage, worldMapErr)
+	} else {
+		sc.WorldMapData = worldMapData
+	}
+}

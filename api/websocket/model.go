@@ -1,5 +1,7 @@
 package websocket
 
+import "api/world_map"
+
 type Config struct {
 	EndpointPath   string `yaml:"endpointPath"`
 	MaxConnections int    `yaml:"maxConnections"`
@@ -77,17 +79,19 @@ type KeeperData struct {
  *****************************************/
 
 type BloxbergBlock struct {
-	ByteSize   int32  `json:"ByteSize"`
-	InsertedAt int64  `json:"InsertedAt"`
-	Miner      string `json:"Miner"`
-	MinerHash  string `json:"MinerHash"`
+	ByteSize   int32              `json:"ByteSize"`
+	InsertedAt int64              `json:"InsertedAt"`
+	Miner      string             `json:"Miner"`
+	MinerHash  string             `json:"MinerHash"`
+	Location   world_map.Location `json:"Location"`
 }
 
 type BloxbergConfirmedTransaction struct {
-	TransactionFee float64 `json:"TransactionFee"`
-	UpdatedAt      int64   `json:"UpdatedAt"`
-	BlockMiner     string  `json:"BlockMiner"`
-	BlockMinerHash string  `json:"BlockMinerHash"`
+	TransactionFee float64            `json:"TransactionFee"`
+	UpdatedAt      int64              `json:"UpdatedAt"`
+	BlockMiner     string             `json:"BlockMiner"`
+	BlockMinerHash string             `json:"BlockMinerHash"`
+	Location       world_map.Location `json:"Location"`
 }
 
 type BloxbergLicensedContributor struct {

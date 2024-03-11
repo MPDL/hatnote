@@ -33,6 +33,7 @@ export interface MinervaWebsocketMessage {
     CreatedAt: number,
     MessageLength: number,
     ChannelType: string,
+    Location: Coordinate
 }
 
 export interface MinervaWebsocketData {
@@ -76,6 +77,7 @@ export interface BloxbergWebsocketBlock {
     InsertedAt: number,
     Miner: string,
     MinerHash: string,
+    Location: Location
 }
 
 export interface BloxbergWebsocketConfirmedTransaction {
@@ -83,6 +85,17 @@ export interface BloxbergWebsocketConfirmedTransaction {
     UpdatedAt: number,
     BlockMiner: string,
     BlockMinerHash: string,
+    Location: Location
+}
+
+export interface Location {
+    coordinate: Coordinate,
+    country: number
+}
+
+export interface Coordinate {
+    lat: number,
+    long: number
 }
 
 export interface BloxbergWebsocketLicensedContributor {

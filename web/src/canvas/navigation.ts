@@ -1,13 +1,13 @@
 import {Selection} from "d3";
-import {Canvas} from "./canvas";
+import {ListenToCanvas} from "./listen/listenToCanvas";
 import {IconButton} from "./icon_button";
 import {ServiceTheme} from "../theme/model";
 import {LegendItem} from "./legend_item";
 import {InfoboxType} from "./info_box";
 
 export class Navigation{
-    public readonly canvas: Canvas;
-    public readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
+    public readonly canvas: ListenToCanvas;
+    public readonly root: Selection<SVGGElement, unknown, null, any>;
     private readonly backButton: IconButton;
     private readonly nextButton: IconButton;
     private readonly infoButton: IconButton;
@@ -16,7 +16,7 @@ export class Navigation{
     private currentServiceIndex = 0;
     private readonly legend_items: LegendItem[] = [];
 
-    constructor(canvas: Canvas) {
+    constructor(canvas: ListenToCanvas) {
         this.canvas = canvas
 
         this.root = canvas.appendSVGElement('g').attr('id', 'navigation')

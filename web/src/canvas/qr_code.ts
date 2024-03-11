@@ -1,20 +1,20 @@
 import {Selection} from "d3";
 import QrCodeMinerva from "../../assets/images/qr-code-minerva.png";
-import {Canvas} from "./canvas";
+import {ListenToCanvas} from "./listen/listenToCanvas";
 import {ServiceTheme} from "../theme/model";
 
 export class QRCode{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly image: Selection<SVGImageElement, unknown, HTMLElement, any>;
-    private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>;
-    private readonly line1: Selection<SVGTSpanElement, unknown, HTMLElement, any>;
-    private readonly line2: Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly image: Selection<SVGImageElement, unknown, null, any>;
+    private readonly text: Selection<SVGTextElement, unknown, null, any>;
+    private readonly line1: Selection<SVGTSpanElement, unknown, null, any>;
+    private readonly line2: Selection<SVGTSpanElement, unknown, null, any>;
     private readonly image_width = 100;
     private readonly image_right_padding = 50;
     private readonly text_color = '#5d7da1';
-    private readonly canvas: Canvas;
+    private readonly canvas: ListenToCanvas;
 
-    constructor(canvas: Canvas) {
+    constructor(canvas: ListenToCanvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'qr_code')
         this.image = this.root.append('image')

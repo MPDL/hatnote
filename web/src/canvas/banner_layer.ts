@@ -1,13 +1,13 @@
 import {Selection} from "d3";
-import {Canvas} from "./canvas";
+import {ListenToCanvas} from "./listen/listenToCanvas";
 import {BannerData} from "../observable/model";
 import {Banner} from "./banner";
 
 export class BannerLayer{
-    public readonly canvas: Canvas
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
+    public readonly canvas: ListenToCanvas
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
     private banner:  Banner | null
-    constructor(canvas: Canvas) {
+    constructor(canvas: ListenToCanvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'banner_layer')
         this.banner = null;
@@ -25,7 +25,7 @@ export class BannerLayer{
         this.banner = new Banner(this, bannerData)
     }
 
-    public appendSVGElement(type: string): Selection<SVGGElement, unknown, HTMLElement, any> {
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, null, any> {
         return this.root.append(type)
     }
 

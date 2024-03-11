@@ -1,12 +1,12 @@
 import {Selection} from "d3";
-import {Canvas} from "./canvas";
-import {ServiceTheme} from "../theme/model";
+import {ServiceTheme} from "../../theme/model";
 import {Circle} from "./circle";
-import {CircleData} from "../observable/model";
-import {HatnoteVisService, ServiceEvent} from "../service_event/model";
+import {CircleData} from "../../observable/model";
+import {HatnoteVisService, ServiceEvent} from "../../service_event/model";
+import {Canvas} from "../canvas";
 
 export class CirclesLayer{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
     private readonly service_circles: Map<HatnoteVisService, Circle[]>;
     public readonly canvas: Canvas
 
@@ -60,7 +60,7 @@ export class CirclesLayer{
         }
     }
 
-    public appendSVGElement(type: string): Selection<SVGGElement, unknown, HTMLElement, any> {
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, null, any> {
         return this.root.append(type)
     }
 

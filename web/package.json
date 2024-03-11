@@ -17,12 +17,15 @@
     "@types/d3": "^7.4.0",
     "@types/express": "^4.17.21",
     "@types/howler": "^2.2.7",
+    "@types/topojson": "^3.2.6",
     "d3": "^7.8.5",
+    "datamaps": "^0.5.9",
     "express": "^4.18.2",
     "howler": "^2.2.3",
     "lodash": "^4.17.21",
     "reconnecting-websocket": "^4.4.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "topojson": "^3.0.2"
   },
   "scripts": {
     "update-version": "./update_version.sh",

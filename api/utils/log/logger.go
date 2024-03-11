@@ -116,6 +116,7 @@ const (
 	Service
 	Mock
 	Mail
+	WorldMap
 )
 
 func (s Concern) String() string {

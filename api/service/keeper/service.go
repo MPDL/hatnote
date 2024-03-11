@@ -8,6 +8,7 @@ import (
 	"api/utils/log"
 	"api/utils/mail"
 	"api/websocket"
+	"api/world_map"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -25,8 +26,9 @@ type Service struct {
 	dbReconnector        database.Reconnector
 }
 
-func (sc *Service) Init(institutesController institutes.Controller) {
+func (sc *Service) Init(institutesController institutes.Controller, _ world_map.Controller) {
 	log.Info("Init Keeper service.", log.Keeper, log.Service)
+	// institute controller
 	sc.InstitutesController = institutesController
 	var institutesData, instituteErr = sc.InstitutesController.Load()
 	if instituteErr != nil {
@@ -36,6 +38,8 @@ func (sc *Service) Init(institutesController institutes.Controller) {
 	} else {
 		sc.InstitutesData = institutesData
 	}
+
+	// db reconnector
 	sc.dbReconnector = database.Reconnector{
 		NextDbReconnect:       time.Time{},
 		NumberOfDbReconnects:  0,
@@ -293,3 +297,5 @@ func (sc *Service) UpdateInstitutesData() {
 		sc.InstitutesData = institutesData
 	}
 }
+
+func (sc *Service) UpdateWorldMapData() {}

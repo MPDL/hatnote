@@ -76,7 +76,7 @@ export class BloxbergTransformer {
                     label_text = '0x' + blocks[index].MinerHash
                 }
                 blockEvents.push({delay: sleepTime, event: ServiceEvent.bloxberg_block, title: label_text,
-                    radius: circleRadius})
+                    radius: circleRadius, location: blocks[index].Location})
             }
         }
         return blockEvents
@@ -118,7 +118,8 @@ export class BloxbergTransformer {
                 if(label_text.length === 0) {
                     label_text = '0x' + confirmedTransactions[index].BlockMinerHash
                 }
-                confirmedTransactionEvents.push({delay: sleepTime, event: ServiceEvent.bloxberg_confirmed_transaction, title: label_text, radius: circleRadius})
+                confirmedTransactionEvents.push({delay: sleepTime, event: ServiceEvent.bloxberg_confirmed_transaction,
+                    title: label_text, radius: circleRadius, location: confirmedTransactions[index].Location})
             }
         }
 

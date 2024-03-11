@@ -4,9 +4,9 @@ import {BannerData} from "../observable/model";
 
 export class Banner{
     private readonly bannerLayer: BannerLayer
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly user_container: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly user_container: Selection<SVGGElement, unknown, null, any>
+    private readonly text: Selection<SVGTextElement, unknown, null, any>
     constructor(bannerLayer: BannerLayer, bannerData: BannerData) {
         this.bannerLayer = bannerLayer
 

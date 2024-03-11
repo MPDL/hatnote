@@ -5,16 +5,16 @@ import {getRandomIntInclusive} from "../util/random";
 export class EventBuffer {
     private readonly eventBuffer: Map<ServiceEvent, EventBufferData>;
 
-    constructor(default_event_buffer_timespan: number, publishCircleEvent: (circleEvent: DelayedCircleEvent) => void) {
+    constructor(default_event_buffer_timespan: number, publishCircleEvent: (circleEvent: DelayedCircleEvent[]) => void, hatnote_map: boolean) {
         this.eventBuffer = new Map([
-            [ServiceEvent.bloxberg_block, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
-            [ServiceEvent.bloxberg_confirmed_transaction, new EventBufferData(publishCircleEvent, default_event_buffer_timespan, 1200)],
-            [ServiceEvent.keeper_file_create, new EventBufferData(publishCircleEvent, 1000,1000)], // Keeper only returns time precision of seconds
-            [ServiceEvent.keeper_file_edit, new EventBufferData(publishCircleEvent, 1000,1000)], // Keeper only returns time precision of seconds
-            [ServiceEvent.keeper_new_library, new EventBufferData(publishCircleEvent, 1000,1000)], // Keeper only returns time precision of seconds
-            [ServiceEvent.minerva_direct_message, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
-            [ServiceEvent.minerva_private_message, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
-            [ServiceEvent.minerva_public_message, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
+            [ServiceEvent.bloxberg_block, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan)],
+            [ServiceEvent.bloxberg_confirmed_transaction, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan, 1200)],
+            [ServiceEvent.keeper_file_create, new EventBufferData(publishCircleEvent, hatnote_map, 1000,1000)], // Keeper only returns time precision of seconds
+            [ServiceEvent.keeper_file_edit, new EventBufferData(publishCircleEvent, hatnote_map, 1000,1000)], // Keeper only returns time precision of seconds
+            [ServiceEvent.keeper_new_library, new EventBufferData(publishCircleEvent, hatnote_map, 1000,1000)], // Keeper only returns time precision of seconds
+            [ServiceEvent.minerva_direct_message, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan)],
+            [ServiceEvent.minerva_private_message, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan)],
+            [ServiceEvent.minerva_public_message, new EventBufferData(publishCircleEvent, hatnote_map, default_event_buffer_timespan)],
         ]);
     }
 
@@ -29,7 +29,7 @@ export class EventBuffer {
         if(eventBufferData === undefined)
             return
 
-        if(eventBufferData.isEventCirclesEmpty()){
+        if(eventBufferData.isEventCirclesArrayEmpty()){
             setTimeout(function(){
                 switch (circleEvent) {
                     case ServiceEvent.keeper_file_create:

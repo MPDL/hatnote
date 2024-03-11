@@ -1,15 +1,15 @@
 import {Selection} from "d3";
 import {CirclesLayer} from "./circles_layer";
-import {ServiceEvent} from "../service_event/model";
-import {getRandomIntInclusive} from "../util/random";
+import {ServiceEvent} from "../../service_event/model";
+import {getRandomIntInclusive} from "../../util/random";
 
 export class Circle{
     private readonly circlesLayer: CirclesLayer
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly ring: Selection<SVGCircleElement, unknown, HTMLElement, any>
-    private readonly circle_container: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly circle: Selection<SVGCircleElement, unknown, HTMLElement, any>
-    private text: Selection<SVGTextElement, unknown, HTMLElement, any>
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly ring: Selection<SVGCircleElement, unknown, null, any>
+    private readonly circle_container: Selection<SVGGElement, unknown, null, any>
+    private readonly circle: Selection<SVGCircleElement, unknown, null, any>
+    private text: Selection<SVGTextElement, unknown, null, any>
     private no_label = false;
     private titleColor = '#fff'
 

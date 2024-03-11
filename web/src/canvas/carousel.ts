@@ -1,4 +1,4 @@
-import {Canvas} from "./canvas";
+import {ListenToCanvas} from "./listen/listenToCanvas";
 import {Transition} from "./transition";
 import {ProgressIndicator} from "./progress_indicator";
 import {DatabaseInfo} from "../observable/model";
@@ -14,9 +14,9 @@ export class Carousel {
     public serviceError: Map<HatnoteVisService, boolean>
     public allServicesHaveError: boolean
     private startCarouselService: HatnoteVisService | null
-    private readonly canvas: Canvas
+    private readonly canvas: ListenToCanvas
     private currentCarouselOrderIndex;
-    constructor(canvas: Canvas) {
+    constructor(canvas: ListenToCanvas) {
         this.canvas = canvas
         this.transition = new Transition(this.canvas)
         this.progess_indicator = new ProgressIndicator(this.canvas)

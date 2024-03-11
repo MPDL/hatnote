@@ -7,9 +7,9 @@ import closeIcon from "../../assets/images/close_FILL0_wght400_GRAD0_opsz24.svg"
 
 export class IconButton {
     private readonly navigation: Navigation
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly bg: Selection<SVGCircleElement, unknown, HTMLElement, any>
-    private readonly image:  Selection<SVGImageElement, unknown, HTMLElement, any>
+    private readonly root: Selection<SVGGElement, unknown, null, any>
+    private readonly bg: Selection<SVGCircleElement, unknown, null, any>
+    private readonly image:  Selection<SVGImageElement, unknown, null, any>
     private readonly circleRadius = 22
 
     constructor(navigation: Navigation, xPos: number, yPos: number, icon: string, functionString: string) {
