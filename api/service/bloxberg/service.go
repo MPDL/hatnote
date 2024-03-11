@@ -181,6 +181,10 @@ func (sc *Service) processEvent() {
 		log.Debug(fmt.Sprintf("Confirmed transaction: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
 			confirmedTransaction.BlockMinerHash, sc.WorldMapData[confirmedTransaction.BlockMinerHash].Coordinate.Lat,
 			sc.WorldMapData[confirmedTransaction.BlockMinerHash].Coordinate.Long, len(sc.WorldMapData)), log.Bloxberg, log.Service)
+		var test = sc.WorldMapData[confirmedTransaction.BlockMinerHash]
+		log.Debug(fmt.Sprintf("Test: Miner hash: %s, Location: %f,%f, Location-map-size: %d",
+			confirmedTransaction.BlockMinerHash, test.Coordinate.Lat,
+			test.Coordinate.Long, len(sc.WorldMapData)), log.Bloxberg, log.Service)
 		websocketEventData.ConfirmedTransactions = append(websocketEventData.ConfirmedTransactions, websocket.BloxbergConfirmedTransaction{
 			TransactionFee: confirmedTransaction.TransactionFee,
 			UpdatedAt:      confirmedTransaction.UpdatedAt,

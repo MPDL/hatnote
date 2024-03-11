@@ -45,6 +45,11 @@ func (idc *Controller) Load() (worldMapDataMap map[string]Location, e error) {
 		}
 	}
 
+	log.Debug(fmt.Sprintf("Location map:"), log.WorldMap)
+	for k, v := range worldMapDataMap {
+		log.Debug(fmt.Sprintf("Location map: id: %s, lat: %f,%f", k, v.Coordinate.Lat, v.Coordinate.Long), log.WorldMap)
+	}
+
 	return
 }
 
