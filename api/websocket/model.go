@@ -1,6 +1,6 @@
 package websocket
 
-import "api/world_map"
+import "api/geo"
 
 type Config struct {
 	EndpointPath   string `yaml:"endpointPath"`
@@ -37,10 +37,11 @@ type DatabaseInfo struct {
  *****************************************/
 
 type MinervaMessage struct {
-	InstituteName string `json:"InstituteName"`
-	CreatedAt     int64  `json:"CreatedAt"`
-	MessageLength int64  `json:"MessageLength"`
-	ChannelType   string `json:"ChannelType"`
+	InstituteName string       `json:"InstituteName"`
+	CreatedAt     int64        `json:"CreatedAt"`
+	MessageLength int64        `json:"MessageLength"`
+	ChannelType   string       `json:"ChannelType"`
+	Location      geo.Location `json:"Location"`
 }
 
 type MinervaData struct {
@@ -52,15 +53,17 @@ type MinervaData struct {
  *****************************************/
 
 type KeeperFileCreationAndEditing struct {
-	OperationSize int64  `json:"OperationSize"`
-	OperationType string `json:"OperationType"`
-	Timestamp     int64  `json:"Timestamp"`
-	InstituteName string `json:"InstituteName"`
+	OperationSize int64        `json:"OperationSize"`
+	OperationType string       `json:"OperationType"`
+	Timestamp     int64        `json:"Timestamp"`
+	InstituteName string       `json:"InstituteName"`
+	Location      geo.Location `json:"Location"`
 }
 
 type KeeperLibraryCreation struct {
-	Timestamp     int64  `json:"Timestamp"`
-	InstituteName string `json:"InstituteName"`
+	Timestamp     int64        `json:"Timestamp"`
+	InstituteName string       `json:"InstituteName"`
+	Location      geo.Location `json:"Location"`
 }
 
 type KeeperActivatedUser struct {
@@ -79,19 +82,19 @@ type KeeperData struct {
  *****************************************/
 
 type BloxbergBlock struct {
-	ByteSize   int32              `json:"ByteSize"`
-	InsertedAt int64              `json:"InsertedAt"`
-	Miner      string             `json:"Miner"`
-	MinerHash  string             `json:"MinerHash"`
-	Location   world_map.Location `json:"Location"`
+	ByteSize   int32        `json:"ByteSize"`
+	InsertedAt int64        `json:"InsertedAt"`
+	Miner      string       `json:"Miner"`
+	MinerHash  string       `json:"MinerHash"`
+	Location   geo.Location `json:"Location"`
 }
 
 type BloxbergConfirmedTransaction struct {
-	TransactionFee float64            `json:"TransactionFee"`
-	UpdatedAt      int64              `json:"UpdatedAt"`
-	BlockMiner     string             `json:"BlockMiner"`
-	BlockMinerHash string             `json:"BlockMinerHash"`
-	Location       world_map.Location `json:"Location"`
+	TransactionFee float64      `json:"TransactionFee"`
+	UpdatedAt      int64        `json:"UpdatedAt"`
+	BlockMiner     string       `json:"BlockMiner"`
+	BlockMinerHash string       `json:"BlockMinerHash"`
+	Location       geo.Location `json:"Location"`
 }
 
 type BloxbergLicensedContributor struct {

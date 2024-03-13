@@ -1,16 +1,16 @@
 package service
 
 import (
+	"api/geo"
 	"api/institutes"
 	"api/utils/observer"
-	"api/world_map"
 )
 
 type ServiceInterface interface {
 	observer.UpdatableInstitutesData
-	observer.UpdatableWorldMapData
+	observer.UpdatableGeoInformation
 
-	Init(institutesController institutes.Controller, worldMapController world_map.Controller)
+	Init(institutesController institutes.Controller, worldMapController geo.Controller)
 	StartService() *chan bool
 	StopService()
 	GetName() string

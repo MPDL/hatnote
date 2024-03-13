@@ -1,6 +1,6 @@
 import {CirclesLayer} from "./circles_layer";
-import {HatnoteVisService, ServiceEvent} from "../../service_event/model";
-import {select, Selection, geoEqualEarth, geoPath, GeoProjection, BaseType} from "d3";
+import {HatnoteVisService} from "../../service_event/model";
+import {BaseType, GeoProjection, select, Selection} from "d3";
 import {CircleData} from "../../observable/model";
 
 export class Circle{
@@ -13,7 +13,7 @@ export class Circle{
         // init circle values
         this.root = select(svgCircle)
         const point = projection([circleData.location?.coordinate.long ?? 0, circleData.location?.coordinate.lat?? 0])
-        if(point === null || circleData.location?.country === undefined){
+        if(point === null || circleData.location === undefined){
             return
         }
         const x = point[0]
@@ -36,7 +36,7 @@ export class Circle{
             .attr('r', 10)
             .duration(40000)
             .on('interrupt', _ => {
-                highlightedCountry.interrupt()
+                highlightedArea.interrupt()
                 popUpContainer.remove();
                 if(this.circlesLayer.canvas.settings.debug_mode){
                     console.log('Circle removed for ' + circleData.type)
@@ -49,8 +49,13 @@ export class Circle{
                 }
             })
 
-        // highlight country
-        const highlightedCountry = this.highlightCountry(circleData.location.country)
+        let highlightedArea: Selection<BaseType, unknown, null, any>;
+        // highlight region
+        if(this.circlesLayer.canvas.theme.current_service_theme.id_name === HatnoteVisService.Bloxberg){
+            highlightedArea = this.highlightCountry(circleData.location.countryId)
+        } else {
+            highlightedArea = this.highlightState(circleData.location.stateId)
+        }
 
         // add pop up
         const popUpContainer = this.circlesLayer.canvas.appContainer.append("div");
@@ -72,8 +77,17 @@ export class Circle{
             .remove()
     }
 
-    private highlightCountry(countryId: number): Selection<BaseType, unknown, null, any> {
+    private highlightCountry(countryId: string): Selection<BaseType, unknown, null, any> {
         let country = this.circlesLayer.canvas.root.select(`path[data-country-id="${countryId}"]`)
+            .style('fill', '#eddc4e')
+        country.transition()
+            .duration(5000)
+            .style('fill', '#ccc');
+        return country
+    };
+
+    private highlightState(stateId: string): Selection<BaseType, unknown, null, any> {
+        let country = this.circlesLayer.canvas.root.select(`path[data-state-id="${stateId}"]`)
             .style('fill', '#eddc4e')
         country.transition()
             .duration(5000)

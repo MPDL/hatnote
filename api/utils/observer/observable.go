@@ -4,6 +4,6 @@ type UpdatableInstitutesData interface {
 	UpdateInstitutesData()
 }
 
-type UpdatableWorldMapData interface {
-	UpdateWorldMapData()
+type UpdatableGeoInformation interface {
+	UpdateGeoInformation()
 }

@@ -1,4 +1,4 @@
-import {GeoProjection, select, Selection} from "d3";
+import {GeoProjection, Selection} from "d3";
 import {ServiceTheme} from "../../theme/model";
 import {Circle} from "./circle";
 import {CircleData} from "../../observable/model";
@@ -23,8 +23,8 @@ export class CirclesLayer{
         let that = this;
 
         // make sure that circle that already exits a removed so that the animation can start from start
-        this.root.selectAll('circle').data<CircleData>([circle], d => (d as any).location.country).interrupt().remove()
-        this.root.selectAll('circle').data<CircleData>([circle], d => (d as any).location.country)
+        this.root.selectAll('circle').data<CircleData>([circle], (d: any) => `${d.location.coordinate.lat}${d.location.coordinate.long}`).interrupt().remove()
+        this.root.selectAll('circle').data<CircleData>([circle], (d: any) => `${d.location.coordinate.lat}${d.location.coordinate.long}`)
             .enter()
             .append('circle')
             .each(function (circleData, _) {

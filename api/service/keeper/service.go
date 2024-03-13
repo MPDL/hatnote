@@ -2,13 +2,13 @@ package keeper
 
 import (
 	"api/database"
+	"api/geo"
 	"api/globals"
 	"api/institutes"
 	"api/service"
 	"api/utils/log"
 	"api/utils/mail"
 	"api/websocket"
-	"api/world_map"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -19,6 +19,8 @@ type Service struct {
 	WebsocketController  websocket.WebsocketInterface
 	InstitutesController institutes.Controller
 	InstitutesData       institutes.InstituteData
+	GeoController        geo.Controller
+	geoInformation       map[string]geo.Location
 	Config               service.ServiceConfig
 	ticker               *time.Ticker
 	done                 chan bool
@@ -26,8 +28,11 @@ type Service struct {
 	dbReconnector        database.Reconnector
 }
 
-func (sc *Service) Init(institutesController institutes.Controller, _ world_map.Controller) {
+func (sc *Service) Init(institutesController institutes.Controller, geoController geo.Controller) {
 	log.Info("Init Keeper service.", log.Keeper, log.Service)
+	// world map controller
+	sc.GeoController = geoController
+	sc.loadGeoInformation()
 	// institute controller
 	sc.InstitutesController = institutesController
 	var institutesData, instituteErr = sc.InstitutesController.Load()
@@ -186,6 +191,7 @@ func (sc *Service) processEvent() {
 			// Therefore, multiply seconds by 1000. That way the front end works homogeneously.
 			Timestamp:     fileCreationAndEditing.Timestamp * 1000,
 			InstituteName: instituteName,
+			Location:      sc.geoInformation[emailDomain],
 		})
 	}
 
@@ -200,6 +206,7 @@ func (sc *Service) processEvent() {
 			// Therefore, multiply seconds by 1000. That way the front end works homogeneously.
 			Timestamp:     libraryCreation.Timestamp * 1000,
 			InstituteName: instituteName,
+			Location:      sc.geoInformation[emailDomain],
 		})
 	}
 
@@ -298,4 +305,18 @@ func (sc *Service) UpdateInstitutesData() {
 	}
 }
 
-func (sc *Service) UpdateWorldMapData() {}
+func (sc *Service) UpdateGeoInformation() {
+	sc.loadGeoInformation()
+}
+
+func (sc *Service) loadGeoInformation() {
+	// no need to use mutex lock/unlock since the usage of the data is not sensible
+	var geoInformation, geoInformationErr = sc.GeoController.Load("mpg-institutes")
+	if geoInformationErr != nil {
+		logMessage := "Error while loading geo information data."
+		log.Error(logMessage, geoInformationErr, log.Keeper, log.Service)
+		mail.SendErrorMail(logMessage, geoInformationErr)
+	} else {
+		sc.geoInformation = geoInformation
+	}
+}

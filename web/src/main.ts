@@ -1,6 +1,6 @@
 import {BehaviorSubject, Subject} from "rxjs";
 import {BannerData, CircleData, DatabaseInfo, NetworkInfoboxData} from "./observable/model";
-import {ListenToCanvas as ListenToCanvas} from "./canvas/listen/listenToCanvas";
+import {ListenToCanvas} from "./canvas/listen/listenToCanvas";
 import {HatnoteAudio} from "./audio/hatnote_audio";
 import {HatnoteSettings} from "./configuration/hatnote_settings";
 import {Theme} from "./theme/theme";
@@ -8,7 +8,7 @@ import {EventBridge} from "./service_event/event_bridge";
 import {WebsocketManager} from "./websocket/websocket";
 import {HatnoteVisService} from "./service_event/model";
 import {HelpPage} from "./help/help_page";
-import {WorldMapCanvas as WorldMapCanvas} from "./canvas/world_map/worldMapCanvas";
+import {GeoCanvas} from "./canvas/geo/geoCanvas";
 import {select} from "d3";
 
 main();
@@ -40,7 +40,7 @@ function main(){
 
     // build canvas
     if (settings_data.map) {
-        new WorldMapCanvas(theme, settings_data, newCircleSubject,
+        new GeoCanvas(theme, settings_data, newCircleSubject,
             showWebsocketInfoboxSubject, updateVersionSubject, updateDatabaseInfoSubject, select(appContainer))
     } else {
         new ListenToCanvas(theme, settings_data, newCircleSubject, newBannerSubject,

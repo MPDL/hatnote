@@ -2,13 +2,13 @@ package minerva
 
 import (
 	"api/database"
+	"api/geo"
 	"api/globals"
 	"api/institutes"
 	"api/service"
 	"api/utils/log"
 	"api/utils/mail"
 	"api/websocket"
-	"api/world_map"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -20,6 +20,8 @@ type Service struct {
 	WebsocketController       websocket.WebsocketInterface
 	InstitutesController      institutes.Controller
 	InstitutesData            institutes.InstituteData
+	GeoController             geo.Controller
+	geoInformation            map[string]geo.Location
 	Config                    service.ServiceConfig
 	ticker                    *time.Ticker
 	done                      chan bool
@@ -28,8 +30,11 @@ type Service struct {
 	dbReconnector             database.Reconnector
 }
 
-func (mmhc *Service) Init(institutesController institutes.Controller, _ world_map.Controller) {
+func (mmhc *Service) Init(institutesController institutes.Controller, geoController geo.Controller) {
 	log.Info("Init Minerva service.", log.Minerva, log.Service)
+	// world map controller
+	mmhc.GeoController = geoController
+	mmhc.loadGeoInformation()
 	mmhc.InstitutesController = institutesController
 	var institutesData, instituteErr = mmhc.InstitutesController.Load()
 	if instituteErr != nil {
@@ -176,6 +181,7 @@ func (mmhc *Service) processEvent() {
 				CreatedAt:     message.CreatedAt,
 				MessageLength: message.Length,
 				ChannelType:   message.Type,
+				Location:      mmhc.geoInformation[message.EmailDomain],
 			})
 		} else {
 			if institute, exists := mmhc.InstitutesData.Institutes[message.EmailDomain]; exists {
@@ -192,6 +198,7 @@ func (mmhc *Service) processEvent() {
 					CreatedAt:     message.CreatedAt,
 					MessageLength: message.Length,
 					ChannelType:   message.Type,
+					Location:      mmhc.geoInformation[message.EmailDomain],
 				})
 			} else {
 				log.Debug(fmt.Sprint("minerva messenger: Domain ", message.EmailDomain, " does not exist in institute data."), log.Minerva, log.Service)
@@ -296,4 +303,18 @@ func (mmhc *Service) UpdateInstitutesData() {
 	}
 }
 
-func (sc *Service) UpdateWorldMapData() {}
+func (sc *Service) UpdateGeoInformation() {
+	sc.loadGeoInformation()
+}
+
+func (sc *Service) loadGeoInformation() {
+	// no need to use mutex lock/unlock since the usage of the data is not sensible
+	var geoInformation, geoInformationErr = sc.GeoController.Load("mpg-institutes")
+	if geoInformationErr != nil {
+		logMessage := "Error while loading geo information data."
+		log.Error(logMessage, geoInformationErr, log.Minerva, log.Service)
+		mail.SendErrorMail(logMessage, geoInformationErr)
+	} else {
+		sc.geoInformation = geoInformation
+	}
+}

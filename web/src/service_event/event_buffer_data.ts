@@ -105,7 +105,7 @@ export class EventBufferData {
         setTimeout(function(){
             if(thisBufferData.hatnote_map){
                 for (let [key, circles] of thisBufferData.eventCirclesMap) {
-                    if(circles[0].event === ServiceEvent.bloxberg_confirmed_transaction || circles[0].event === ServiceEvent.bloxberg_block){
+                    if(circles[0].location !== undefined){
                         thisBufferData.publishCircleEvent([{
                             event: circles[0].event, title: thisBufferData.generateSingleCircleTitle(circles[0].event, circles[0]),
                             radius: 4,

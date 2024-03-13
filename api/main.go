@@ -39,16 +39,16 @@ func main() {
 	log.Info("Loading institute data ...", log.Main)
 	env.Dependencies.InstitutesDataController.Init(env.Config.InstituteData)
 
-	// Load world map data
-	log.Info("Loading world map data ...", log.Main)
-	env.Dependencies.WorldMapDataController.Init(env.Config.WorldMap)
+	// Load geo information data
+	log.Info("Loading geo information data ...", log.Main)
+	env.Dependencies.GeoController.Init(env.Config.Geographic)
 
 	// Start hatnote service
 	log.Info("Starting hatnote service ...", log.Main)
 	for i, _ := range env.Dependencies.HatnoteServiceController {
 		go func(index int) {
 			service := env.Dependencies.HatnoteServiceController[index]
-			service.Init(env.Dependencies.InstitutesDataController, env.Dependencies.WorldMapDataController)
+			service.Init(env.Dependencies.InstitutesDataController, env.Dependencies.GeoController)
 			service.StartService()
 		}(i)
 	}
@@ -62,12 +62,12 @@ func main() {
 	env.Dependencies.InstitutesDataController.StartPeriodicSync(observables...)
 
 	// Start periodic institutes data sync
-	log.Info("Start periodic world map data sync ...", log.Main)
-	wordMapObservables := make([]observer.UpdatableWorldMapData, len(env.Dependencies.HatnoteServiceController))
+	log.Info("Start periodic geo information data sync ...", log.Main)
+	geoInformationObservables := make([]observer.UpdatableGeoInformation, len(env.Dependencies.HatnoteServiceController))
 	for i := 0; i < len(env.Dependencies.HatnoteServiceController); i++ {
-		wordMapObservables[i] = observer.UpdatableWorldMapData(env.Dependencies.HatnoteServiceController[i])
+		geoInformationObservables[i] = observer.UpdatableGeoInformation(env.Dependencies.HatnoteServiceController[i])
 	}
-	env.Dependencies.WorldMapDataController.StartPeriodicSync(wordMapObservables...)
+	env.Dependencies.GeoController.StartPeriodicSync(geoInformationObservables...)
 
 	// Application successfully started
 	logMessage := "Application successfully started"

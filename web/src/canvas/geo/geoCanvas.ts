@@ -1,20 +1,22 @@
-import {select, Selection, geoEqualEarth, geoPath, GeoProjection, BaseType} from "d3";
+import {geoAlbers, geoBounds, geoEqualEarth, geoPath, GeoProjection, Selection} from "d3";
 import '../../style/normalize.css';
 import '../../style/main.css';
 import {CirclesLayer} from "./circles_layer";
 import {Header} from "../header";
 import {InfoBox, InfoboxType} from "../info_box";
 import {Theme} from "../../theme/theme";
-import {BehaviorSubject, Subject} from "rxjs";
-import {BannerData, CircleData, DatabaseInfo, NetworkInfoboxData} from "../../observable/model";
+import {Subject} from "rxjs";
+import {CircleData, DatabaseInfo, NetworkInfoboxData} from "../../observable/model";
 import {SettingsData} from "../../configuration/hatnote_settings";
 import {feature, mesh} from "topojson";
 import countriesJson from '../../../assets/countries-50m.json'
-import { GeometryObject, Topology } from 'topojson-specification';
-import { GeoJsonProperties, FeatureCollection } from 'geojson';
+import germanyJson from '../../../assets/germany.json'
+import {GeometryObject, Topology} from 'topojson-specification';
+import {FeatureCollection, GeoJsonProperties} from 'geojson';
 import {Canvas} from "../canvas";
+import {HatnoteVisService} from "../../service_event/model";
 
-export class WorldMapCanvas extends Canvas{
+export class GeoCanvas extends Canvas{
     public readonly  circles_layer: CirclesLayer
     public readonly  header: Header;
     protected readonly _root: Selection<SVGSVGElement, unknown, null, any>;
@@ -30,9 +32,6 @@ export class WorldMapCanvas extends Canvas{
         super(theme, settings, newCircleSubject, showNetworkInfoboxObservable, updateVersionSubject,updateDatabaseInfoSubject, appContainer)
 
         // draw order matters in this function. Do not change without checking the result.
-        const width = this.width;
-        const marginTop = this.theme.header_height;
-        const height = this.height;
 
         this._root = appContainer.append("svg")
             .attr("id", 'hatnote-canvas')
@@ -40,8 +39,12 @@ export class WorldMapCanvas extends Canvas{
             .attr("height", this.height)
             .attr("style", "max-width: 100%; height: auto;");
 
-        let projection = geoEqualEarth().fitExtent([[2, marginTop + 2], [width - 2, height - 2 ]], {type: "Sphere"});
-        this.initWorldMapSvg(projection)
+        let projection;
+        if(this.theme.current_service_theme.id_name === HatnoteVisService.Bloxberg){
+            projection = this.initWorldMapSvg()
+        } else {
+            projection = this.initGermanyMapSvg()
+        }
         this.circles_layer = new CirclesLayer(this, projection)
         this.header = new Header(this, false)
         // needs to be added last to the svg because it should draw over everything else
@@ -53,10 +56,73 @@ export class WorldMapCanvas extends Canvas{
         window.onresize = (_) => this.windowUpdate();
     }
 
-    private initWorldMapSvg(projection: GeoProjection){
-        const width = 928;
-        const marginTop = 46;
-        const height = width / 2 + marginTop;
+    private germanyProjection(states: any): GeoProjection{
+        const width = this.width;
+        const marginTop = this.theme.header_height;
+        const height = this.height;
+
+        // from https://observablehq.com/@sto3psl/map-of-germany-in-d3-js
+        const [bottomLeft, topRight] = geoBounds(states);
+        /* https://bl.ocks.org/mbostock/4282586 */
+        const lambda = -(topRight[0] + bottomLeft[0]) / 2;
+        /* Coordinates for the center of the map*/
+        const center: [number, number] = [
+            (topRight[0] + bottomLeft[0]) / 2 + lambda,
+            (topRight[1] + bottomLeft[1]) / 2
+        ];
+        const scale = Math.min(
+            width / (topRight[0] + bottomLeft[0]),
+            height / (topRight[1] - bottomLeft[1])
+        );
+        return geoAlbers()
+            .parallels([bottomLeft[1], topRight[1]])
+            .translate([width / 2, height / 2])
+            .rotate([lambda, 0, 0])
+            .center(center)
+            .scale(scale * 200).fitExtent([[2, marginTop + 2], [width - 2, height - 2 ]], states);
+    }
+
+    private initGermanyMapSvg(){
+        // draw order matters here, check before changing something
+        let germany: Topology = (germanyJson as unknown) as Topology
+        let statesGeometry: GeometryObject<GeoJsonProperties> = germany.objects.states;
+        let states: any = feature(germany, statesGeometry)
+
+        // create projection
+        let projection = this.germanyProjection(states)
+
+        // Fit the projection.
+        const path = geoPath(projection);
+
+        // Add a path for each country and color it according te this data.
+        this._root.append("g")
+            .selectAll("path")
+            .data((states as FeatureCollection).features)
+            .join("path")
+            .attr("fill", d => '#ccc')
+            .attr("d", path)
+            .attr("data-state-id", c => `${c.id}`)
+            .attr("data-state-name", c => `${c.properties?.name}`)
+
+        let countrymesh = mesh(germany, statesGeometry as GeometryObject, (a: GeometryObject, b: GeometryObject) => a !== b)
+        // Add a white mesh.
+        this._root.append("path")
+            .datum(countrymesh)
+            .attr("fill", "none")
+            .attr("stroke", "white")
+            .attr("d", path);
+
+        return projection
+    }
+
+    private initWorldMapSvg(){
+        const width = this.width;
+        const marginTop = this.theme.header_height;
+        const height = this.height;
+
+        // create projection
+        let projection = geoEqualEarth().fitExtent([[2, marginTop + 2], [width - 2, height - 2 ]], {type: "Sphere"})
+
         // Fit the projection.
         const path = geoPath(projection);
 
@@ -81,7 +147,6 @@ export class WorldMapCanvas extends Canvas{
             .attr("d", path)
             .attr("data-country-id", c => `${c.id}`)
             .attr("data-country-name", c => `${c.properties?.name}`)
-            .attr("data-service-name", c => `${c.properties?.name}`)
 
         let countrymesh = mesh(world, countriesGeometry as GeometryObject, (a: GeometryObject, b: GeometryObject) => a !== b)
         // Add a white mesh.
@@ -90,6 +155,8 @@ export class WorldMapCanvas extends Canvas{
             .attr("fill", "none")
             .attr("stroke", "white")
             .attr("d", path);
+
+        return projection
     }
 
     public renderCurrentTheme(){

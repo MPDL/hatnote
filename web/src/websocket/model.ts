@@ -33,7 +33,7 @@ export interface MinervaWebsocketMessage {
     CreatedAt: number,
     MessageLength: number,
     ChannelType: string,
-    Location: Coordinate
+    Location: Location
 }
 
 export interface MinervaWebsocketData {
@@ -49,12 +49,14 @@ export interface KeeperWebsocketFileCreationsAndEditings {
     OperationType: string,
     Timestamp: number,
     InstituteName: string,
+    Location: Location
 }
 
 export interface KeeperWebsocketLibraryCreations {
     LibraryName: string,
     Timestamp: number,
     InstituteName: string,
+    Location: Location
 }
 
 export interface KeeperWebsocketActivatedUsers {
@@ -90,7 +92,8 @@ export interface BloxbergWebsocketConfirmedTransaction {
 
 export interface Location {
     coordinate: Coordinate,
-    country: number
+    countryId: string,
+    stateId: string
 }
 
 export interface Coordinate {

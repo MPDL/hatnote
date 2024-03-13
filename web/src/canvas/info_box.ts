@@ -7,7 +7,6 @@ import {NetworkInfoboxData} from "../observable/model";
 import InfoboxDbConnectingImg from "../../assets/images/MessyDoodle.svg";
 import {Carousel} from "./carousel";
 import {Subject} from "rxjs";
-import {WorldMapCanvas} from "./world_map/worldMapCanvas";
 import {Canvas} from "./canvas";
 
 export class InfoBox{

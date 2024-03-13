@@ -37,8 +37,12 @@ export class EventBuffer {
                 switch (circleEvent) {
                     case ServiceEvent.keeper_file_create:
                     case ServiceEvent.keeper_file_edit:
-                        let splitRandom = getRandomIntInclusive(1,4)
-                        eventBufferData?.splitBufferAndRelease(splitRandom)
+                        if (!that.hatnote_map) {
+                            let splitRandom = getRandomIntInclusive(1,4)
+                            eventBufferData?.splitBufferAndRelease(splitRandom)
+                        } else {
+                            eventBufferData?.releaseBuffer()
+                        }
                         break;
                     case ServiceEvent.bloxberg_confirmed_transaction:
                         if (!that.hatnote_map) {
