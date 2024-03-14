@@ -5,6 +5,7 @@ import {DatabaseInfo} from "../observable/model";
 import {Subject} from "rxjs";
 import {HatnoteVisService} from "../service_event/model";
 import {ServiceTheme} from "../theme/model";
+import {GeoCanvas} from "./geo/geoCanvas";
 
 export class Carousel {
     public readonly transition: Transition;
@@ -14,11 +15,13 @@ export class Carousel {
     public serviceError: Map<HatnoteVisService, boolean>
     public allServicesHaveError: boolean
     private startCarouselService: HatnoteVisService | null
-    private readonly canvas: ListenToCanvas
+    private readonly canvas: ListenToCanvas | GeoCanvas
     private currentCarouselOrderIndex;
-    constructor(canvas: ListenToCanvas) {
+    constructor(canvas: ListenToCanvas | GeoCanvas) {
         this.canvas = canvas
         this.transition = new Transition(this.canvas)
+        this.transition.onTransitionMid.subscribe(_ => this.canvas.hatnoteVisServiceChangedSubject.next(this.canvas.theme.current_service_theme.id_name))
+        this.transition.onTransitionEnd.subscribe(_ => this.continueCarousel())
         this.progess_indicator = new ProgressIndicator(this.canvas)
         this.updateDatabaseInfoSubject = this.canvas.updateDatabaseInfoSubject
         this.serviceError = new Map<HatnoteVisService, boolean>()
@@ -75,9 +78,7 @@ export class Carousel {
 
                     if(dbInfo.service === this.canvas.theme.current_service_theme.id_name && !this.allServicesHaveError) {
                         this.initNextTheme()
-                        this.transition.startTransition(this.canvas.theme.current_service_theme,
-                            (_) => this.canvas.renderCurrentTheme(),
-                            (_) => this.continueCarousel())
+                        this.transition.startTransition(this.canvas.theme.current_service_theme)
                     }
                     return;
                 }
@@ -110,7 +111,6 @@ export class Carousel {
         if(nextTheme){
             this.canvas.theme.set_current_theme(nextTheme);
             this.progess_indicator.setCurrentServiceIndicator(nextTheme)
-            this.canvas.hatnoteVisServiceChangedSubject.next(this.canvas.theme.current_service_theme.id_name)
         }
     }
 
@@ -134,9 +134,7 @@ export class Carousel {
             indicator?.start(() => {
                 if (!this.allServicesHaveError) {
                     this.initNextTheme()
-                    this.transition.startTransition(this.canvas.theme.current_service_theme,
-                        (_) => this.canvas.renderCurrentTheme(),
-                        (_) => this.continueCarousel())
+                    this.transition.startTransition(this.canvas.theme.current_service_theme)
                 }
             })
         }

@@ -41,7 +41,7 @@ function main(){
     // build canvas
     if (settings_data.map) {
         new GeoCanvas(theme, settings_data, newCircleSubject,
-            showWebsocketInfoboxSubject, updateVersionSubject, updateDatabaseInfoSubject, select(appContainer))
+            showWebsocketInfoboxSubject, updateVersionSubject, hatnoteVisServiceChangedSubject, updateDatabaseInfoSubject, select(appContainer))
     } else {
         new ListenToCanvas(theme, settings_data, newCircleSubject, newBannerSubject,
             showAudioInfoboxSubject, showWebsocketInfoboxSubject, updateVersionSubject, hatnoteVisServiceChangedSubject, updateDatabaseInfoSubject,select(appContainer))

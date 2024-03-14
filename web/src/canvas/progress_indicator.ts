@@ -2,6 +2,7 @@ import { easeLinear, Selection, transition} from "d3";
 import {ListenToCanvas} from "./listen/listenToCanvas";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
+import {GeoCanvas} from "./geo/geoCanvas";
 
 export class ProgressIndicator{
     public readonly service_indicators: Map<HatnoteVisService, ServiceProgressIndicator>;
@@ -11,9 +12,9 @@ export class ProgressIndicator{
         return this._currentServiceIndicator;
     }
 
-    private readonly canvas: ListenToCanvas
+    private readonly canvas: ListenToCanvas | GeoCanvas
 
-    constructor(canvas: ListenToCanvas) {
+    constructor(canvas: ListenToCanvas | GeoCanvas) {
         this.canvas = canvas
         this.service_indicators = new Map<HatnoteVisService, ServiceProgressIndicator>()
         canvas.theme.service_themes.forEach(service => {
@@ -41,9 +42,9 @@ class ServiceProgressIndicator{
     private readonly textBox: Selection<SVGRectElement, unknown, null, any>
     private readonly text: Selection<SVGTextElement, unknown, null, any>
     public readonly service_id: HatnoteVisService
-    private readonly canvas: ListenToCanvas
+    private readonly canvas: ListenToCanvas | GeoCanvas
 
-    constructor(canvas: ListenToCanvas, service_theme: ServiceTheme) {
+    constructor(canvas: ListenToCanvas | GeoCanvas, service_theme: ServiceTheme) {
         this.canvas = canvas;
         let progress_indicator_width = canvas.theme.progress_indicator_width(canvas.width);
         let pos_x = canvas.theme.progress_indicator_pos_x(service_theme.id_name, canvas.width, progress_indicator_width, canvas.theme.progress_indicator_gap_width);

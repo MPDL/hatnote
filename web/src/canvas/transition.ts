@@ -3,6 +3,9 @@ import {ListenToCanvas} from "./listen/listenToCanvas";
 import MpdlLogo from "../../assets/images/logo-mpdl-twocolor-dark-var1.png";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
+import {GeoCanvas} from "./geo/geoCanvas";
+import {Subject} from "rxjs";
+import {NetworkInfoboxData} from "../observable/model";
 
 export class Transition{
     private readonly root: Selection<SVGGElement, unknown, null, any>;
@@ -17,9 +20,12 @@ export class Transition{
     private readonly mpdl_logo:  Selection<SVGImageElement, unknown, null, any>;
     private readonly text: Selection<SVGTextElement, unknown, null, any>;
     private readonly service_logo: Selection<SVGImageElement, unknown, null, any>;
-    private readonly canvas: ListenToCanvas;
+    private readonly canvas: ListenToCanvas | GeoCanvas;
+    public readonly onTransitionStart: Subject<void>
+    public readonly onTransitionMid: Subject<void>
+    public readonly onTransitionEnd: Subject<void>
 
-    constructor(canvas: ListenToCanvas) {
+    constructor(canvas: ListenToCanvas | GeoCanvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'transition_layer').attr('opacity', 0)
 
@@ -53,11 +59,15 @@ export class Transition{
             .text('Next service:')
 
         this.service_logo = this.transition_screen.append('image')
+
+        this.onTransitionStart = new Subject()
+        this.onTransitionMid = new Subject()
+        this.onTransitionEnd= new Subject()
     }
 
-    startTransition(service: ServiceTheme, renderCurrentTheme: (currentServiceTheme: ServiceTheme) => void,
-                    continueCarousel: (currentServiceTheme: ServiceTheme) => void, delay:number = 0,
+    startTransition(service: ServiceTheme, delay:number = 0,
                     in_duration: number = 2500, active_duration: number = 4000, out_duration: number = 1500){
+        this.onTransitionStart.next()
         this.root.attr('opacity', 1)
 
         this.circles_path.attr('d', 'M' + this.canvas.width/2  + ' ' + this.canvas.height/2  + '  Q40 ' + ((this.canvas.height/2)+100) +' ,-10 -40')
@@ -193,7 +203,7 @@ export class Transition{
             .ease(Math.sqrt)
             .duration(in_duration - logo_delay)
             .on('end', () => {
-                renderCurrentTheme(service)
+                this.onTransitionMid.next()
             })
             .transition()
             .delay(active_duration)
@@ -203,7 +213,7 @@ export class Transition{
             .ease(easeExpOut)
             .duration(out_duration)
             .on('start', () => {
-                continueCarousel(service)
+                this.onTransitionEnd.next()
             })
     }
 

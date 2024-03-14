@@ -8,18 +8,20 @@ import {ServiceEvent} from "../../service_event/model";
 export class CirclesLayer{
     private readonly root: Selection<SVGGElement, unknown, null, any>;
     public readonly canvas: Canvas
-    public readonly projection: GeoProjection
+    public readonly germanyProjection: GeoProjection
+    public readonly worldProjection: GeoProjection
 
-    constructor(canvas: Canvas, projection: GeoProjection) {
+    constructor(canvas: Canvas, germanyProjection: GeoProjection, worldProjection: GeoProjection) {
         this.canvas = canvas
-        this.projection = projection
+        this.germanyProjection = germanyProjection;
+        this.worldProjection = worldProjection;
         this.root = canvas.appendSVGElement('g').attr('id', 'circle_layer')
         canvas.newCircleSubject.subscribe({
-            next: (value) => this.addCircle(value, this.projection)
+            next: (value) => this.addCircle(value)
         })
     }
 
-    private addCircle(circle: CircleData, projection: GeoProjection){
+    private addCircle(circle: CircleData){
         let that = this;
 
         // make sure that circle that already exits a removed so that the animation can start from start
@@ -34,7 +36,7 @@ export class CirclesLayer{
                 }
 
                 new Circle(that,circleData,
-                    this, that.projection, service)
+                    this, service)
             })
     }
 

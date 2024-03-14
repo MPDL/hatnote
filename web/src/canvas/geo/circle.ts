@@ -1,6 +1,6 @@
 import {CirclesLayer} from "./circles_layer";
 import {HatnoteVisService} from "../../service_event/model";
-import {BaseType, GeoProjection, select, Selection} from "d3";
+import {BaseType, select, Selection} from "d3";
 import {CircleData} from "../../observable/model";
 
 export class Circle{
@@ -8,11 +8,16 @@ export class Circle{
     private readonly root:  Selection<SVGCircleElement, unknown, null, undefined>;
 
     constructor(circlesLayer: CirclesLayer, circleData: CircleData,
-                svgCircle:  SVGCircleElement, projection: GeoProjection, service: HatnoteVisService) {
+                svgCircle:  SVGCircleElement, service: HatnoteVisService) {
         this.circlesLayer = circlesLayer
         // init circle values
         this.root = select(svgCircle)
-        const point = projection([circleData.location?.coordinate.long ?? 0, circleData.location?.coordinate.lat?? 0])
+        let point;
+        if(this.circlesLayer.canvas.theme.current_service_theme.id_name === HatnoteVisService.Bloxberg){
+            point = this.circlesLayer.worldProjection([circleData.location?.coordinate.long ?? 0, circleData.location?.coordinate.lat?? 0])
+        } else {
+            point = this.circlesLayer.germanyProjection([circleData.location?.coordinate.long ?? 0, circleData.location?.coordinate.lat?? 0])
+        }
         if(point === null || circleData.location === undefined){
             return
         }

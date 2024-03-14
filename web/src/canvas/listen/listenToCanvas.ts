@@ -23,15 +23,12 @@ export class ListenToCanvas extends Canvas {
     public readonly header: Header;
     protected readonly _root: Selection<SVGSVGElement, unknown, null, any>;
     public readonly navigation: Navigation | undefined;
-    public readonly isMobileScreen: boolean = false;
     public readonly info_box_websocket: InfoBox;
     public readonly info_box_audio: InfoBox;
     public readonly info_box_legend: InfoBox;
     public readonly mute_icon: MuteIcon;
     public readonly newBannerSubject: Subject<BannerData>
-    public readonly hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>
     public readonly showAudioInfoboxObservable: Subject<boolean>
-    public readonly showNetworkInfoboxObservable: Subject<NetworkInfoboxData>
     public readonly carousel: Carousel | undefined
 
     constructor(theme: Theme, settings: SettingsData, newCircleSubject: Subject<CircleData>,
@@ -42,16 +39,10 @@ export class ListenToCanvas extends Canvas {
                 hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>,
                 updateDatabaseInfoSubject: Subject<DatabaseInfo>,
                 appContainer:  Selection<HTMLDivElement, unknown, null, undefined>){
-        super(theme, settings, newCircleSubject, showNetworkInfoboxObservable, updateVersionSubject,updateDatabaseInfoSubject, appContainer)
+        super(theme, settings, newCircleSubject, showNetworkInfoboxObservable, updateVersionSubject,hatnoteVisServiceChangedSubject,updateDatabaseInfoSubject, appContainer)
 
         this.newBannerSubject = newBannerSubject
         this.showAudioInfoboxObservable = showAudioInfoboxObservable
-        this.showNetworkInfoboxObservable = showNetworkInfoboxObservable
-        this.hatnoteVisServiceChangedSubject = hatnoteVisServiceChangedSubject
-
-        if (this.width <= 430 || this.height <= 430) { // iPhone 12 Pro Max 430px viewport width
-            this.isMobileScreen = true;
-        }
 
         // draw order matters in this function. Do not change without checking the result.
         this._root = this.appContainer.append("svg")
