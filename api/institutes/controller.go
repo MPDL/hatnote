@@ -1,14 +1,12 @@
 package institutes
 
 import (
+	"api/utils/file_download"
 	"api/utils/log"
 	"api/utils/observer"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
 	"regexp"
 	"time"
 )
@@ -24,7 +22,7 @@ func (idc *Controller) Init(config Config) {
 }
 
 func (idc *Controller) Load() (institutesData InstituteData, e error) {
-	jsonString, err := idc.getJsonStringFromFile(idc.config.SourceUrl)
+	jsonString, err := file_download.GetJsonStringFromFile(idc.config.SourceUrl, make(map[string]string))
 	if err != nil {
 		log.Error("Error while loading institute data.", err, log.Institutes)
 		e = errors.New("could not load institute data")
@@ -76,34 +74,6 @@ func (idc *Controller) StopPeriodicSync() {
 	}
 }
 
-func (idc *Controller) downloadFile(url string) (byteArray []byte, err error) {
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Warn(fmt.Sprint("Could not get file. Error: ", err), log.Institutes)
-		err = errors.New("could not download file")
-		return
-	}
-	defer resp.Body.Close()
-
-	// Check response code
-	if resp.StatusCode != 200 {
-		log.Error("Request for file returned status:  "+resp.Status+".", err, log.Institutes)
-		err = errors.New("could not download file")
-		return
-	}
-
-	// Read content of response body
-	var readErr error
-	byteArray, readErr = io.ReadAll(resp.Body)
-	if readErr != nil {
-		log.Error("Could not read file.", readErr, log.Institutes)
-		err = errors.New("could not get json string from file")
-	}
-
-	return
-}
-
 func (idc *Controller) convertJsonObjectToInstituteData(jsonInstitutesData InstituteDataJson) (institutesData InstituteData) {
 	duplicatedDomains := make(map[string]struct{})
 	institutesData = *NewInstitutesData()
@@ -133,47 +103,6 @@ func (idc *Controller) convertJsonObjectToInstituteData(jsonInstitutesData Insti
 		}
 	}
 	institutesData.DomainDuplicates = duplicatedDomains
-
-	return
-}
-
-func (idc *Controller) getJsonStringFromFile(sourceUrl string) (jsonString string, e error) {
-	log.Info("Trying to get json string from file '"+sourceUrl+"'.", log.Institutes)
-	byteArray, err := idc.downloadFile(idc.config.SourceUrl)
-	if err != nil {
-		log.Warn("Error downloading file. Error: "+err.Error(), log.Institutes)
-		log.Info("Trying to find file on local hard drive...", log.Institutes)
-
-		if _, err := os.Stat(idc.config.SourceUrl); err != nil {
-			if os.IsNotExist(err) {
-				log.Error("File not found on local hard drive.", err, log.Institutes)
-			} else {
-				log.Error("File found but there was another error.", err, log.Institutes)
-			}
-			e = errors.New("could not get json string from file")
-			return
-		} else {
-			log.Info("Found file on local hard drive.", log.Institutes)
-			fileReader, openErr := os.Open(idc.config.SourceUrl)
-
-			if openErr != nil {
-				log.Error("There was a error while opening the file.", err, log.Institutes)
-				e = errors.New("could not get json string from file")
-				return
-			}
-			var readErr error
-			byteArray, readErr = io.ReadAll(fileReader)
-			if readErr != nil {
-				log.Error("Could not read file.", readErr, log.Institutes)
-				e = errors.New("could not get json string from file")
-			}
-		}
-	} else {
-		log.Info("File '"+sourceUrl+"' downloaded.", log.Institutes)
-
-	}
-
-	jsonString = string(byteArray)
 
 	return
 }

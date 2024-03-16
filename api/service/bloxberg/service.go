@@ -2,10 +2,12 @@ package bloxberg
 
 import (
 	"api/database"
+	"api/geo"
 	"api/globals"
 	"api/institutes"
 	"api/service"
 	"api/utils/log"
+	"api/utils/mail"
 	"api/websocket"
 	"encoding/json"
 	"time"
@@ -14,6 +16,8 @@ import (
 type Service struct {
 	DatabaseController  DatabaseInterface
 	WebsocketController websocket.WebsocketInterface
+	GeoController       geo.Controller
+	geoInformation      map[string]geo.Location
 	Config              service.ServiceConfig
 	ticker              *time.Ticker
 	done                chan bool
@@ -21,8 +25,13 @@ type Service struct {
 	dbReconnector       database.Reconnector
 }
 
-func (sc *Service) Init(_ institutes.Controller) {
+func (sc *Service) Init(_ institutes.Controller, geoController geo.Controller) {
 	log.Info("Init Bloxberg service.", log.Bloxberg, log.Service)
+	// geo controller
+	sc.GeoController = geoController
+	sc.loadGeoInformation()
+
+	// db reconnector
 	sc.dbReconnector = database.Reconnector{
 		NextDbReconnect:       time.Time{},
 		NumberOfDbReconnects:  0,
@@ -159,6 +168,7 @@ func (sc *Service) processEvent() {
 			InsertedAt: block.InsertedAt,
 			Miner:      block.Miner,
 			MinerHash:  block.MinerHash,
+			Location:   sc.geoInformation[block.MinerHash],
 		})
 	}
 
@@ -169,6 +179,7 @@ func (sc *Service) processEvent() {
 			UpdatedAt:      confirmedTransaction.UpdatedAt,
 			BlockMiner:     confirmedTransaction.BlockMiner,
 			BlockMinerHash: confirmedTransaction.BlockMinerHash,
+			Location:       sc.geoInformation[confirmedTransaction.BlockMinerHash],
 		})
 	}
 
@@ -204,3 +215,19 @@ func (sc *Service) processEvent() {
 }
 
 func (sc *Service) UpdateInstitutesData() {}
+
+func (sc *Service) UpdateGeoInformation() {
+	sc.loadGeoInformation()
+}
+
+func (sc *Service) loadGeoInformation() {
+	// no need to use mutex lock/unlock since the usage of the data is not sensible
+	var geoInformation, geoInformationErr = sc.GeoController.Load("bloxberg-validators")
+	if geoInformationErr != nil {
+		logMessage := "Error while loading geo information data."
+		log.Error(logMessage, geoInformationErr, log.Bloxberg, log.Service)
+		mail.SendErrorMail(logMessage, geoInformationErr)
+	} else {
+		sc.geoInformation = geoInformation
+	}
+}

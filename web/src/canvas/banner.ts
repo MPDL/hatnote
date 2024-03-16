@@ -4,14 +4,14 @@ import {BannerData} from "../observable/model";
 
 export class Banner{
     private readonly bannerLayer: BannerLayer
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly user_container: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly user_container: Selection<SVGGElement, unknown, null, any>
+    private readonly text: Selection<SVGTextElement, unknown, null, any>
     constructor(bannerLayer: BannerLayer, bannerData: BannerData) {
         this.bannerLayer = bannerLayer
 
         this.root = bannerLayer.appendSVGElement('g')
-            .attr('transform', 'translate(0, ' +  bannerLayer.canvas.theme.header_height +')');
+            .attr('transform', 'translate(0, ' +  bannerLayer.canvas.visDirector.hatnoteTheme.header_height +')');
 
         this.user_container = this.root.append('g')
 
@@ -28,7 +28,7 @@ export class Banner{
 
         this.user_container.append('rect')
             .attr('opacity', 0)
-            .attr('fill', bannerLayer.canvas.theme.getThemeColor(bannerData.serviceEvent))
+            .attr('fill', bannerLayer.canvas.visDirector.getThemeColor(bannerData.serviceEvent))
             .attr('width', bannerLayer.canvas.width)
             .attr('height', 35)
             .transition()

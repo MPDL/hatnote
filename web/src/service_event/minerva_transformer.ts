@@ -46,7 +46,7 @@ export class MinervaTransformer{
 
                 if(convertedType !== undefined){
                     messagesEvents.push({delay: sleepTime, event: convertedType, title: minervaMessages[index].InstituteName,
-                        radius: minervaMessages[index].MessageLength})
+                        radius: minervaMessages[index].MessageLength, location: minervaMessages[index].Location})
                 }
             }
         }

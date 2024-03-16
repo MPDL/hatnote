@@ -1,6 +1,7 @@
 package config
 
 import (
+	"api/geo"
 	"api/institutes"
 	"api/service"
 	"api/service/bloxberg"
@@ -16,6 +17,7 @@ import (
 
 type Dependencies struct {
 	InstitutesDataController institutes.Controller
+	GeoController            geo.Controller
 	HatnoteServiceController []service.ServiceInterface
 }
 
@@ -96,6 +98,7 @@ func loadConfigFromFile(fileName string) (config EnvironmentConfig, loadError er
 func hatnoteDependencies(services []service.ServiceConfig) *Dependencies {
 	dependencies := &Dependencies{
 		InstitutesDataController: institutes.Controller{},
+		GeoController:            geo.Controller{},
 		HatnoteServiceController: make([]service.ServiceInterface, len(services)),
 	}
 
@@ -127,6 +130,7 @@ func hatnoteDependencies(services []service.ServiceConfig) *Dependencies {
 func hatnoteMockDbDependencies(services []service.ServiceConfig) *Dependencies {
 	dependencies := &Dependencies{
 		InstitutesDataController: institutes.Controller{},
+		GeoController:            geo.Controller{},
 		HatnoteServiceController: make([]service.ServiceInterface, len(services)),
 	}
 
@@ -158,6 +162,7 @@ func hatnoteMockDbDependencies(services []service.ServiceConfig) *Dependencies {
 func hatnoteMockWsDbDependencies(services []service.ServiceConfig) *Dependencies {
 	dependencies := &Dependencies{
 		InstitutesDataController: institutes.Controller{},
+		GeoController:            geo.Controller{},
 		HatnoteServiceController: make([]service.ServiceInterface, len(services)),
 	}
 

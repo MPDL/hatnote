@@ -1,6 +1,7 @@
 package config
 
 import (
+	"api/geo"
 	"api/institutes"
 	"api/service"
 	"api/utils/mail"
@@ -12,6 +13,7 @@ type EnvironmentConfig struct {
 	Services      []service.ServiceConfig `yaml:"services"`
 	InstituteData institutes.Config       `yaml:"instituteData"`
 	Email         mail.Config             `yaml:"email"`
+	Geographic    geo.Config              `yaml:"geographic"`
 }
 
 func (c EnvironmentConfig) ConfigToString() string {
@@ -41,5 +43,10 @@ func (c EnvironmentConfig) ConfigToString() string {
 	sb.WriteString(fmt.Sprintln("    SmtpPort: ", c.Email.SmtpPort))
 	sb.WriteString(fmt.Sprintln("    FromAddress: ", c.Email.FromAddress))
 	sb.WriteString(fmt.Sprintln("    ToAddress: ", c.Email.ToAddress))
+	sb.WriteString("  Geographic:\n")
+	sb.WriteString(fmt.Sprintln("    BloxbergValidatorsSourceUrl: ", c.Geographic.BloxbergValidatorsSourceUrl))
+	sb.WriteString(fmt.Sprintln("    MpgInstitutesSourceUrl: ", c.Geographic.MpgInstitutesSourceUrl))
+	sb.WriteString(fmt.Sprintln("    PeriodicSync: ", c.Geographic.PeriodicSync))
+	sb.WriteString(fmt.Sprintln("    ApiPassword: ", c.Geographic.ApiPassword))
 	return sb.String()
 }

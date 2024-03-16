@@ -12,11 +12,9 @@ export class HatnoteAudio {
     private readonly swells: Howl[] = []
     private readonly harp: Howl[] = []
     private lastAudioPlayed: number = 0
-    private readonly showAudioInfoboxSubject: Subject<boolean>
     private readonly settings_data: SettingsData
 
-    constructor(settings_data: SettingsData, showAudioInfoboxSubject: Subject<boolean> ) {
-        this.showAudioInfoboxSubject = showAudioInfoboxSubject
+    constructor(settings_data: SettingsData ) {
         this.settings_data = settings_data
 
         let loaded_sounds = 0
@@ -47,10 +45,7 @@ export class HatnoteAudio {
                         console.log("Number of audio playing (subtract): " + thisAudio.current_notes)
                     }
                 },
-                onload: sound_load,
-                onunlock: function() {
-                    thisAudio.showAudioInfoboxSubject.next(false)
-                },
+                onload: sound_load
             }))
 
             this.clav.push(new Howl({
@@ -63,10 +58,7 @@ export class HatnoteAudio {
                         console.log("Number of audio playing (subtract): " + thisAudio.current_notes)
                     }
                 },
-                onload: sound_load,
-                onunlock: function() {
-                    thisAudio.showAudioInfoboxSubject.next(false)
-                },
+                onload: sound_load
             }))
         }
 
@@ -82,10 +74,7 @@ export class HatnoteAudio {
                         console.log("Number of audio playing (subtract): " + thisAudio.current_notes)
                     }
                 },
-                onload : sound_load,
-                onunlock: function() {
-                    thisAudio.showAudioInfoboxSubject.next(false)
-                },
+                onload : sound_load
             }))
         }
 
@@ -93,26 +82,17 @@ export class HatnoteAudio {
         this.harp.push(new Howl({
             src : [sound_map.get('sounds/ConcertHarp-small/samples/C3_mf3.wav')],
             volume : 0.2,
-            onload : sound_load,
-            onunlock: function() {
-                thisAudio.showAudioInfoboxSubject.next(false)
-            },
+            onload : sound_load
         }))
        this.harp.push(new Howl({
             src : [sound_map.get('sounds/ConcertHarp-small/samples/F2_f1.wav')],
             volume : 0.2,
-            onload : sound_load,
-            onunlock: function() {
-                thisAudio.showAudioInfoboxSubject.next(false)
-            },
+            onload : sound_load
         }))
         this.harp.push(new Howl({
             src : [sound_map.get('sounds/ConcertHarp-small/samples/A2_mf1.wav')],
             volume : 0.2,
             onload : sound_load,
-            onunlock: function() {
-                thisAudio.showAudioInfoboxSubject.next(false)
-            },
         }))
     }
 

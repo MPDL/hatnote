@@ -1,30 +1,30 @@
 import {Selection} from "d3";
-import {CirclesLayer} from "./circles_layer";
-import {ServiceEvent} from "../service_event/model";
-import {getRandomIntInclusive} from "../util/random";
+import {ServiceEvent} from "../../service_event/model";
+import {getRandomIntInclusive} from "../../util/random";
+import {ListenToCirclesLayer} from "./listenToCirclesLayer";
 
-export class Circle{
-    private readonly circlesLayer: CirclesLayer
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly ring: Selection<SVGCircleElement, unknown, HTMLElement, any>
-    private readonly circle_container: Selection<SVGGElement, unknown, HTMLElement, any>
-    private readonly circle: Selection<SVGCircleElement, unknown, HTMLElement, any>
-    private text: Selection<SVGTextElement, unknown, HTMLElement, any>
+export class ListenToCircle{
+    private readonly circlesLayer: ListenToCirclesLayer
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly ring: Selection<SVGCircleElement, unknown, null, any>
+    private readonly circle_container: Selection<SVGGElement, unknown, null, any>
+    private readonly circle: Selection<SVGCircleElement, unknown, null, any>
+    private text: Selection<SVGTextElement, unknown, null, any>
     private no_label = false;
     private titleColor = '#fff'
 
-    constructor(circlesLayer: CirclesLayer, type: ServiceEvent, label_text: string, circle_radius: number, removeCircle: (serviceEvent: ServiceEvent) => void) {
+    constructor(circlesLayer: ListenToCirclesLayer, type: ServiceEvent, label_text: string, circle_radius: number, removeCircle: (serviceEvent: ServiceEvent) => void) {
         this.circlesLayer = circlesLayer
 
         // Otherwise the same label text will reset the seed to the same value which results in Math.random() returning the same number over and over
         //Math.seedrandom(label_text + Date.now())
         // give circle spawn a padding of 20
         let x = getRandomIntInclusive(20, circlesLayer.canvas.width - 20);
-        let y = getRandomIntInclusive(20 + circlesLayer.canvas.theme.header_height, circlesLayer.canvas.height - 20) ;
+        let y = getRandomIntInclusive(20 + circlesLayer.canvas.visDirector.hatnoteTheme.header_height, circlesLayer.canvas.height - 20) ;
 
         this.root = circlesLayer.appendSVGElement('g')
             .attr('transform', 'translate(' + x + ', ' + y + ')')
-            .attr('fill', circlesLayer.canvas.theme.circle_wave_color)
+            .attr('fill', circlesLayer.canvas.visDirector.hatnoteTheme.circle_wave_color)
             .style('opacity', 1.0)
 
         this.ring = this.root.append('circle')
@@ -41,7 +41,7 @@ export class Circle{
         this.circle_container = this.root.append('g')
 
         this.circle = this.circle_container.append('circle')
-            .attr('fill', this.circlesLayer.canvas.theme.getThemeColor(type))
+            .attr('fill', this.circlesLayer.canvas.visDirector.getThemeColor(type))
             .attr('r', circle_radius)
             .style('opacity', this.circlesLayer.canvas.settings.circle_start_opacity)
         this.circle.transition()
