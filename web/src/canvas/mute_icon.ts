@@ -1,6 +1,6 @@
 import {Selection} from "d3";
-import {ListenToCanvas} from "./listen/listenToCanvas";
 import QrCodeMinerva from "../../assets/images/volume_off_FILL1_wght400_GRAD0_opsz24.svg";
+import {Canvas} from "./canvas";
 
 export class MuteIcon{
     private readonly root: Selection<SVGGElement, unknown, null, any>;
@@ -10,10 +10,10 @@ export class MuteIcon{
     private readonly background: Selection<SVGRectElement, unknown, null, any>;
     private readonly image_width = 100;
     private readonly text_color = '#fff';
-    private readonly canvas: ListenToCanvas;
+    private readonly canvas: Canvas;
 
     // consists not only of the icon but also spans a transparent clickable container above everything
-    constructor(canvas: ListenToCanvas) {
+    constructor(canvas: Canvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g')
             .attr('id', 'qr_code')

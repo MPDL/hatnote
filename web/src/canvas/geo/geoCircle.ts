@@ -1,19 +1,22 @@
-import {CirclesLayer} from "./circles_layer";
 import {HatnoteVisService} from "../../service_event/model";
 import {BaseType, select, Selection} from "d3";
 import {CircleData} from "../../observable/model";
+import {GeoCirclesLayer} from "./geoCirclesLayer";
+import {Canvas} from "../canvas";
 
-export class Circle{
-    private readonly circlesLayer: CirclesLayer
+export class GeoCircle {
+    private readonly circlesLayer: GeoCirclesLayer
     private readonly root:  Selection<SVGCircleElement, unknown, null, undefined>;
+    private readonly canvas: Canvas;
 
-    constructor(circlesLayer: CirclesLayer, circleData: CircleData,
+    constructor(circlesLayer: GeoCirclesLayer, circleData: CircleData,
                 svgCircle:  SVGCircleElement, service: HatnoteVisService) {
         this.circlesLayer = circlesLayer
+        this.canvas = this.circlesLayer.geoVis.canvas
         // init circle values
         this.root = select(svgCircle)
         let point;
-        if(this.circlesLayer.canvas.theme.current_service_theme.id_name === HatnoteVisService.Bloxberg){
+        if(this.canvas.visDirector.current_service_theme.id_name === HatnoteVisService.Bloxberg){
             point = this.circlesLayer.worldProjection([circleData.location?.coordinate.long ?? 0, circleData.location?.coordinate.lat?? 0])
         } else {
             point = this.circlesLayer.germanyProjection([circleData.location?.coordinate.long ?? 0, circleData.location?.coordinate.lat?? 0])
@@ -30,7 +33,7 @@ export class Circle{
             .attr('cy', y)
             .attr("data-hatnote-event-type", circleData.type)
             .attr("data-hatnote-service-name", service)
-            .style('fill', this.circlesLayer.canvas.theme.getThemeColor(circleData.type))
+            .style('fill', this.canvas.visDirector.getThemeColor(circleData.type))
             .attr('fill-opacity', 0.75)
             .attr('r', 0)
             .transition()
@@ -43,30 +46,30 @@ export class Circle{
             .on('interrupt', _ => {
                 highlightedArea.interrupt()
                 popUpContainer.remove();
-                if(this.circlesLayer.canvas.settings.debug_mode){
+                if(this.canvas.settings.debug_mode){
                     console.log('Circle removed for ' + circleData.type)
                 }
             })
             .remove()
             .each( _ => {
-                if(this.circlesLayer.canvas.settings.debug_mode){
+                if(this.canvas.settings.debug_mode){
                     console.log('Circle removed for ' + circleData.type)
                 }
             })
 
         let highlightedArea: Selection<BaseType, unknown, null, any>;
         // highlight region
-        if(this.circlesLayer.canvas.theme.current_service_theme.id_name === HatnoteVisService.Bloxberg){
+        if(this.canvas.visDirector.current_service_theme.id_name === HatnoteVisService.Bloxberg){
             highlightedArea = this.highlightCountry(circleData.location.countryId)
         } else {
             highlightedArea = this.highlightState(circleData.location.stateId)
         }
 
         // add pop up
-        const popUpContainer = this.circlesLayer.canvas.appContainer.append("div");
+        const popUpContainer = this.canvas.geoPopUpContainer.append("div");
         popUpContainer
             .style('position', 'absolute')
-            .style('top', `${y - this.circlesLayer.canvas.theme.header_height + 10}px`)
+            .style('top', `${y - this.canvas.visDirector.hatnoteTheme.header_height + 10}px`)
             .style('left', `${x + 10}px`)
             .style('padding', '4px')
             .style('border-radius', '1px')
@@ -83,7 +86,7 @@ export class Circle{
     }
 
     private highlightCountry(countryId: string): Selection<BaseType, unknown, null, any> {
-        let country = this.circlesLayer.canvas.root.select(`path[data-country-id="${countryId}"]`)
+        let country = this.canvas.root.select(`path[data-country-id="${countryId}"]`)
             .style('fill', '#eddc4e')
         country.transition()
             .duration(5000)
@@ -92,7 +95,7 @@ export class Circle{
     };
 
     private highlightState(stateId: string): Selection<BaseType, unknown, null, any> {
-        let country = this.circlesLayer.canvas.root.select(`path[data-state-id="${stateId}"]`)
+        let country = this.canvas.root.select(`path[data-state-id="${stateId}"]`)
             .style('fill', '#eddc4e')
         country.transition()
             .duration(5000)

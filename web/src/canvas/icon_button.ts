@@ -20,7 +20,7 @@ export class IconButton {
         this.bg = this.root.append('circle')
             .attr('transform', 'translate(' + xPos + ', ' + yPos+ ')')
             .attr('r', this.circleRadius)
-            .attr('stroke', this.navigation.canvas.theme.progress_indicator_fg_color)
+            .attr('stroke', this.navigation.canvas.visDirector.hatnoteTheme.progress_indicator_fg_color)
             .attr('stroke-width', 4 )
             .attr('fill', '#fff')
 

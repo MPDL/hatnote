@@ -1,12 +1,10 @@
 import {Selection} from "d3";
-import {ListenToCanvas} from "./listen/listenToCanvas";
 import InfoboxAudioImg from "../../assets/images/DancingDoodle.svg";
 import LoadingSpinner from "../../assets/images/spinner.svg";
 import InfoboxWebsocketConnectingImg from "../../assets/images/SprintingDoodle.svg";
 import {NetworkInfoboxData} from "../observable/model";
 import InfoboxDbConnectingImg from "../../assets/images/MessyDoodle.svg";
 import {Carousel} from "./carousel";
-import {Subject} from "rxjs";
 import {Canvas} from "./canvas";
 
 export class InfoBox{
@@ -31,14 +29,12 @@ export class InfoBox{
     private readonly isMobileScreen : boolean
     private readonly carousel : Carousel | undefined
     private currentType: InfoboxType
-    public readonly showAudioInfoboxObservable: Subject<boolean> | undefined
 
 
-    constructor(canvas: Canvas, type: InfoboxType, isMobileScreen: boolean, carousel: Carousel | undefined, showAudioInfoboxObservable: Subject<boolean> | undefined) {
+    constructor(canvas: Canvas, type: InfoboxType) {
         this.canvas = canvas
-        this.isMobileScreen = isMobileScreen
-        this.carousel = carousel
-        this.showAudioInfoboxObservable = showAudioInfoboxObservable
+        this.isMobileScreen = this.canvas.isMobileScreen
+        this.carousel = this.canvas.carousel
         this.currentType = type
         this.root = canvas.appendSVGElement('g')
             .attr('opacity', 0)
@@ -60,11 +56,11 @@ export class InfoBox{
             .text('')
             .attr('font-family', 'HatnoteVisBold')
             .attr('font-size', '26px')
-            .attr('fill', canvas.theme.header_text_color)
+            .attr('fill', canvas.visDirector.hatnoteTheme.header_text_color)
         this.text = this.root.append('text')
             .attr('font-family', 'HatnoteVisNormal')
             .attr('font-size', '16px')
-            .attr('fill', canvas.theme.header_text_color)
+            .attr('fill', canvas.visDirector.hatnoteTheme.header_text_color)
         let line1 = this.text.append('tspan')
         let line12 = this.text.append('tspan')
         let line2 = this.text.append('tspan')
@@ -98,16 +94,6 @@ export class InfoBox{
                     next: (value) => this.show(value.infoboxType, value.show, value)
                 })
                 break;
-            case InfoboxType.audio_enable:
-                line5link = this.text.append('a')
-                line5 = line5link.append('tspan')
-                line52 = line5link.append('tspan')
-                this.line5link = line5link
-                this.loadingSpinner = undefined
-                this.showAudioInfoboxObservable?.subscribe({
-                    next: (value) => this.show(InfoboxType.audio_enable, value)
-                })
-                break;
         }
 
         this.setPosition()
@@ -119,20 +105,6 @@ export class InfoBox{
 
     public show(type: InfoboxType, show: boolean, network_infobox_data?: NetworkInfoboxData) {
         this.currentType = type
-        if(type=== InfoboxType.audio_enable) {
-            this.root.attr('opacity', show ? 1 : 0)
-            this.image?.attr('href', InfoboxAudioImg)
-            this.title.text('Enable audio')
-            this.line1[0].text('Your browser autoplay policy may prevent')
-            this.line2[0].text('audio from being played. Please ')
-            this.line2[1].text('click ').attr('font-family', 'HatnoteVisBold')
-            this.line3[0].text('somewhere on this page ').attr('font-family', 'HatnoteVisBold')
-            this.line3[1].text('to enable audio.')
-            this.line4[0].text('For more info see:')
-            this.line5link?.attr('href', 'https://jamonserrano.github.io/state-of-autoplay/')
-                .attr('target', '_blank')
-            this.line5[0].text('jamonserrano.github.io/state-of-autoplay')
-        }
 
         if(type === InfoboxType.network_websocket_connecting){
             this.root.attr('opacity', show ? 1 : 0)
@@ -149,11 +121,11 @@ export class InfoBox{
 
         // current theme service must match with websocket event service, otherwise, when carousel mode is active and e.g. minerva service
         // is shown, the keeper db infobox might appear
-        if(type === InfoboxType.network_database_connecting && this.canvas.theme.current_service_theme.id_name === network_infobox_data?.service){
+        if(type === InfoboxType.network_database_connecting && this.canvas.visDirector.current_service_theme.id_name === network_infobox_data?.service){
             this.root.attr('opacity', show ? 1 : 0)
             this.image?.attr('href', InfoboxWebsocketConnectingImg)
             this.title.text('Connecting to database')
-            this.line1[0].text('Connecting to ' + this.canvas.theme.current_service_theme.name + ' database.')
+            this.line1[0].text('Connecting to ' + this.canvas.visDirector.current_service_theme.name + ' database.')
             this.line2[0].text(' ')
             this.line3[0].text(' ')
             this.line3[1].text(' ')
@@ -162,12 +134,12 @@ export class InfoBox{
             this.loadingSpinner?.attr('opacity', 1)
         }
 
-        if(type === InfoboxType.network_database_can_not_connect && this.canvas.theme.current_service_theme.id_name === network_infobox_data?.service &&
+        if(type === InfoboxType.network_database_can_not_connect && this.canvas.visDirector.current_service_theme.id_name === network_infobox_data?.service &&
             (!this.canvas.settings.carousel_mode || this.carousel?.allServicesHaveError)){
             this.root.attr('opacity', show ? 1 : 0)
             this.image?.attr('href', InfoboxDbConnectingImg)
             this.title.text('Cannot connect to database')
-            this.line1[0].text('The backend can not connect ' + this.canvas.theme.current_service_theme.name + ' database.')
+            this.line1[0].text('The backend can not connect ' + this.canvas.visDirector.current_service_theme.name + ' database.')
             this.line2[0].text(' ')
             this.line3[0].text('Next reconnect: ').attr('font-family', 'HatnoteVisBold')
             this.line3[1].text(network_infobox_data?.next_reconnect_date ?? '')
@@ -209,9 +181,6 @@ export class InfoBox{
             case InfoboxType.network_database_connecting:
                 this.loadingSpinner?.attr('x', this.canvas.width/2 + 40).attr('y', this.canvas.height/2 + 10)
                 break;
-            case InfoboxType.audio_enable:
-                this.line5[0].attr('x', text_x).attr('dy', '20px')
-                break;
         }
     }
 }
@@ -220,6 +189,5 @@ export enum InfoboxType {
     network_websocket_connecting,
     network_database_connecting,
     network_database_can_not_connect,
-    audio_enable, // nowhere used because it was dismissed in favour of the mute icon
     legend
 }

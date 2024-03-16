@@ -11,7 +11,7 @@ export class Banner{
         this.bannerLayer = bannerLayer
 
         this.root = bannerLayer.appendSVGElement('g')
-            .attr('transform', 'translate(0, ' +  bannerLayer.canvas.theme.header_height +')');
+            .attr('transform', 'translate(0, ' +  bannerLayer.canvas.visDirector.hatnoteTheme.header_height +')');
 
         this.user_container = this.root.append('g')
 
@@ -28,7 +28,7 @@ export class Banner{
 
         this.user_container.append('rect')
             .attr('opacity', 0)
-            .attr('fill', bannerLayer.canvas.theme.getThemeColor(bannerData.serviceEvent))
+            .attr('fill', bannerLayer.canvas.visDirector.getThemeColor(bannerData.serviceEvent))
             .attr('width', bannerLayer.canvas.width)
             .attr('height', 35)
             .transition()

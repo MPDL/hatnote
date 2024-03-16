@@ -1,11 +1,10 @@
 import {easeBackOut, easeCircleOut, easeCubicOut, easeExpOut, easeQuadOut, Selection} from "d3";
-import {ListenToCanvas} from "./listen/listenToCanvas";
 import MpdlLogo from "../../assets/images/logo-mpdl-twocolor-dark-var1.png";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
-import {GeoCanvas} from "./geo/geoCanvas";
 import {Subject} from "rxjs";
 import {NetworkInfoboxData} from "../observable/model";
+import {Canvas} from "./canvas";
 
 export class Transition{
     private readonly root: Selection<SVGGElement, unknown, null, any>;
@@ -20,12 +19,12 @@ export class Transition{
     private readonly mpdl_logo:  Selection<SVGImageElement, unknown, null, any>;
     private readonly text: Selection<SVGTextElement, unknown, null, any>;
     private readonly service_logo: Selection<SVGImageElement, unknown, null, any>;
-    private readonly canvas: ListenToCanvas | GeoCanvas;
+    private readonly canvas: Canvas;
     public readonly onTransitionStart: Subject<void>
     public readonly onTransitionMid: Subject<void>
     public readonly onTransitionEnd: Subject<void>
 
-    constructor(canvas: ListenToCanvas | GeoCanvas) {
+    constructor(canvas: Canvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'transition_layer').attr('opacity', 0)
 

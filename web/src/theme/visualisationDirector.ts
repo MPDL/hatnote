@@ -1,39 +1,39 @@
-import {ServiceTheme} from "./model";
+import {HatnoteTheme, ServiceTheme, Visualisation} from "./model";
 import {minerva_service_theme} from "./minerva";
 import {SettingsData} from "../configuration/hatnote_settings";
 import {HatnoteVisService, ServiceEvent} from "../service_event/model";
 import {keeper_service_theme} from "./keeper";
 import {bloxberg_service_theme} from "./bloxberg";
+import {hatnote_theme} from "./hatnote";
+import {getRandomIntInclusive} from "../util/random";
 
-export class Theme {
-    readonly svg_background_color: string = '#1c2733'
-    readonly header_bg_color: string = '#fff'
-    readonly header_height: number = 45
-    readonly header_version_update_bg = '#b62121'
-    readonly header_text_color: string = '#000'
-    readonly legend_item_circle_r: number = 17
-    readonly progress_indicator_bg_color = '#fff'
-    readonly progress_indicator_fg_color = 'rgb(41, 128, 185)'
-    readonly progress_indicator_error_color = '#b62121'
-    readonly progress_indicator_height = 7
-    readonly progress_indicator_gap_width = 10
-    readonly progress_indicator_y_padding = 20
-    readonly circle_wave_color= '#fff'
+export class VisualisationDirector {
     service_themes: Map<HatnoteVisService, ServiceTheme> = new Map<HatnoteVisService, ServiceTheme>()
     carousel_service_order: ServiceTheme[]
     current_service_theme: ServiceTheme;
     readonly minervaTheme: ServiceTheme;
     readonly keeperTheme: ServiceTheme;
     readonly bloxbergTheme: ServiceTheme;
+    readonly hatnoteTheme: HatnoteTheme;
+    current_visualisation: Visualisation;
+    private settings_data: SettingsData;
 
     constructor(settings_data: SettingsData) {
+        this.settings_data = settings_data
         this.minervaTheme = minerva_service_theme
         this.keeperTheme = keeper_service_theme
         this.bloxbergTheme = bloxberg_service_theme
+        this.hatnoteTheme = hatnote_theme
 
         this.minervaTheme.carousel_time = settings_data.carousel_time[0]
         this.keeperTheme.carousel_time = settings_data.carousel_time[1]
         this.bloxbergTheme.carousel_time = settings_data.carousel_time[2]
+
+        if(settings_data.map) {
+            this.current_visualisation = Visualisation.geo
+        } else {
+            this.current_visualisation = Visualisation.listenTo
+        }
 
         this.service_themes.set(HatnoteVisService.Minerva, this.minervaTheme)
         this.service_themes.set(HatnoteVisService.Keeper, this.keeperTheme)
@@ -42,6 +42,22 @@ export class Theme {
         this.carousel_service_order = [this.minervaTheme, this.keeperTheme, this.bloxbergTheme]
 
         this.current_service_theme = this.service_themes.get(settings_data.initialService) ?? this.minervaTheme
+    }
+
+    getNextVisualisation(): Visualisation{
+        let vis: Visualisation = this.current_visualisation
+        if(this.settings_data.mixed) {
+            if(vis === Visualisation.listenTo){
+                vis = Visualisation.geo
+            } else {
+                vis = Visualisation.listenTo
+            }
+        }
+        return vis
+    }
+
+    setCurrentVisualisation(vis: Visualisation){
+        this.current_visualisation = vis;
     }
 
     set_current_theme(serviceTheme: ServiceTheme){

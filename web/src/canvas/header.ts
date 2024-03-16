@@ -1,13 +1,12 @@
 import {Selection} from "d3";
 import MinervaLogo from "../../assets/images/minervamessenger-banner-kussmund+bulb.png";
 import {LegendItem} from "./legend_item";
-import {ServiceTheme} from "../theme/model";
+import {ServiceTheme, Visualisation} from "../theme/model";
 import {environmentVariables} from "../configuration/environment";
 import {Canvas} from "./canvas";
 
 export class Header{
     public readonly canvas: Canvas;
-    private readonly isMobileScreen: boolean;
     private readonly root: Selection<SVGGElement, unknown, null, any>
     private readonly background_rect: Selection<SVGRectElement, unknown, null, any>
     private readonly title: Selection<SVGTextElement, unknown, null, any>
@@ -17,9 +16,8 @@ export class Header{
     private readonly updateText: Selection<SVGTextElement, unknown, null, any>
     private readonly legend_items: LegendItem[] = [];
 
-    constructor(canvas: Canvas, isMobileScreen: boolean) {
+    constructor(canvas: Canvas) {
         this.canvas = canvas;
-        this.isMobileScreen = isMobileScreen;
 
         this.root = canvas.appendSVGElement('g')
             .attr('id', 'header')
@@ -28,8 +26,8 @@ export class Header{
 
         this.background_rect = this.root.append('rect')
             .attr('width', canvas.width)
-            .attr('height', canvas.theme.header_height)
-            .attr('fill', canvas.theme.header_bg_color)
+            .attr('height', canvas.visDirector.hatnoteTheme.header_height)
+            .attr('fill', canvas.visDirector.hatnoteTheme.header_bg_color)
 
         this.logo = this.root.append('image')
             .attr('x', 10).attr('y', 4)
@@ -39,16 +37,16 @@ export class Header{
         this.title = this.root.append('text')
             .text('Hatnote title')
             .attr('font-family', 'HatnoteVisBold')
-            .attr('font-size', this.isMobileScreen ? '22px' : '32px')
-            .attr('fill', canvas.theme.header_text_color)
-            .attr('x', this.isMobileScreen ? 174 : 224).attr('y', canvas.theme.header_height/2 + 8.5)
+            .attr('font-size', this.canvas.isMobileScreen ? '22px' : '32px')
+            .attr('fill', canvas.visDirector.hatnoteTheme.header_text_color)
+            .attr('x', this.canvas.isMobileScreen ? 174 : 224).attr('y', canvas.visDirector.hatnoteTheme.header_height/2 + 8.5)
 
         this.title0 = this.root.append('text')
-            .text('Listen to')
+            .text(this.canvas.visDirector.current_visualisation === Visualisation.listenTo ? 'Listen to' : 'Locate')
             .attr('font-family', 'HatnoteVisNormal')
-            .attr('font-size', this.isMobileScreen ? '22px' : '32px')
-            .attr('fill', canvas.theme.header_text_color)
-            .attr('x', 70).attr('y', canvas.theme.header_height/2 + 8.5)
+            .attr('font-size', this.canvas.isMobileScreen ? '22px' : '32px')
+            .attr('fill', canvas.visDirector.hatnoteTheme.header_text_color)
+            .attr('x', 70).attr('y', canvas.visDirector.hatnoteTheme.header_height/2 + 8.5)
 
         this.updateBox = this.root.append('rect')
             .attr('opacity', 0)
@@ -57,7 +55,7 @@ export class Header{
             .attr('height', '30')
             .attr('rx', 7)
             .attr('ry', 7)
-            .attr('fill', this.canvas.theme.header_version_update_bg)
+            .attr('fill', this.canvas.visDirector.hatnoteTheme.header_version_update_bg)
 
         this.updateText = this.root.append('text')
             .attr('opacity', 0)
@@ -68,7 +66,7 @@ export class Header{
             .attr('font-size', '16px')
             .attr('fill', '#fff')
 
-        if(!this.isMobileScreen){
+        if(!this.canvas.isMobileScreen){
             for (let i = 0; i < 3; i++) {
                 this.legend_items.push(new LegendItem(this, undefined, this.canvas))
             }
@@ -106,6 +104,7 @@ export class Header{
         this.logo.attr('y', currentServiceTheme.header_y)
 
         this.title.text(currentServiceTheme.header_title)
+        this.title0.text(this.canvas.visDirector.current_visualisation === Visualisation.listenTo ? 'Listen to' : 'Locate')
 
         // update legend items
         this.clearLegendItems()
@@ -122,7 +121,7 @@ export class Header{
         this.updateBox.attr('transform', `translate(${this.canvas.width/2 - 95}, 8)`)
         this.updateText.attr('transform', `translate(${this.canvas.width/2}, 28)`)
 
-        this.canvas.theme.current_service_theme.legend_items.forEach((theme_legend_item, i) => {
+        this.canvas.visDirector.current_service_theme.legend_items.forEach((theme_legend_item, i) => {
             if(i < this.legend_items.length) {
                 this.legend_items[i].windowUpdate(theme_legend_item)
             }

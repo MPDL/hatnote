@@ -1,22 +1,24 @@
 import {GeoProjection, Selection} from "d3";
 import {ServiceTheme} from "../../theme/model";
-import {Circle} from "./circle";
 import {CircleData} from "../../observable/model";
 import {Canvas} from "../canvas";
 import {ServiceEvent} from "../../service_event/model";
+import {GeoCircle} from "./geoCircle";
+import {GeoVisualisation} from "./geoVisualisation";
 
-export class CirclesLayer{
+export class GeoCirclesLayer{
     private readonly root: Selection<SVGGElement, unknown, null, any>;
-    public readonly canvas: Canvas
+    public readonly geoVis: GeoVisualisation
     public readonly germanyProjection: GeoProjection
     public readonly worldProjection: GeoProjection
+    private readonly rootId = "geo-vis-circle-layer"
 
-    constructor(canvas: Canvas, germanyProjection: GeoProjection, worldProjection: GeoProjection) {
-        this.canvas = canvas
+    constructor(geoVis: GeoVisualisation, germanyProjection: GeoProjection, worldProjection: GeoProjection) {
+        this.geoVis = geoVis
         this.germanyProjection = germanyProjection;
         this.worldProjection = worldProjection;
-        this.root = canvas.appendSVGElement('g').attr('id', 'circle_layer')
-        canvas.newCircleSubject.subscribe({
+        this.root = geoVis.appendSVGElement('g').attr('id', this.rootId)
+        geoVis.canvas.newCircleSubject.subscribe({
             next: (value) => this.addCircle(value)
         })
     }
@@ -30,21 +32,24 @@ export class CirclesLayer{
             .enter()
             .append('circle')
             .each(function (circleData, _) {
-                let service = that.canvas.theme.getHatnoteService(circleData.type)
-                if (that.canvas.theme.current_service_theme?.id_name !== service){
+                let service = that.geoVis.canvas.visDirector.getHatnoteService(circleData.type)
+                if (that.geoVis.canvas.visDirector.current_service_theme?.id_name !== service){
                     return
                 }
 
-                new Circle(that,circleData,
+                new GeoCircle(that,circleData,
                     this, service)
             })
     }
 
     public removeOtherServiceCircles(currentServiceTheme: ServiceTheme) {
-        for (let serviceTheme of this.canvas.theme.service_themes.values()) {
+        for (let serviceTheme of this.geoVis.canvas.visDirector.service_themes.values()) {
             if(serviceTheme.id_name !== currentServiceTheme.id_name) {
                 this.root.select(`circle[data-hatnote-service-name="${serviceTheme.id_name}"]`).interrupt().remove()
             }
         }
+        let circleLayer = document.getElementById(this.rootId);
+        circleLayer?.replaceChildren()
+        this.geoVis.canvas.geoPopUpContainer.selectChildren().remove()
     }
 }

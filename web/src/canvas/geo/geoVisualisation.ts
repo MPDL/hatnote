@@ -1,13 +1,6 @@
 import {geoAlbers, geoBounds, geoEqualEarth, geoPath, GeoProjection, Selection} from "d3";
 import '../../style/normalize.css';
 import '../../style/main.css';
-import {CirclesLayer} from "./circles_layer";
-import {Header} from "../header";
-import {InfoBox, InfoboxType} from "../info_box";
-import {Theme} from "../../theme/theme";
-import {BehaviorSubject, Subject} from "rxjs";
-import {CircleData, DatabaseInfo, NetworkInfoboxData} from "../../observable/model";
-import {SettingsData} from "../../configuration/hatnote_settings";
 import {feature, mesh} from "topojson";
 import countriesJson from '../../../assets/countries-50m.json'
 import germanyJson from '../../../assets/germany.json'
@@ -15,65 +8,49 @@ import {GeometryObject, Topology} from 'topojson-specification';
 import {FeatureCollection, GeoJsonProperties} from 'geojson';
 import {Canvas} from "../canvas";
 import {HatnoteVisService} from "../../service_event/model";
-import {Carousel} from "../carousel";
+import {GeoCirclesLayer} from "./geoCirclesLayer";
+import {Visualisation} from "../../theme/model";
 
-export class GeoCanvas extends Canvas{
-    public readonly  circles_layer: CirclesLayer
-    public readonly  header: Header;
-    protected readonly _root: Selection<SVGSVGElement, unknown, null, any>;
-    public readonly  info_box_websocket: InfoBox;
-    public readonly  info_box_legend: InfoBox;
+export class GeoVisualisation {
+    public readonly  circles_layer: GeoCirclesLayer
+    public readonly canvas: Canvas;
+    protected readonly root: Selection<SVGGElement, unknown, null, any>;
     public readonly worldMap: Selection<SVGGElement, unknown, null, any>;
     public readonly worldMapProjection: GeoProjection;
     public readonly germanyMap: Selection<SVGGElement, unknown, null, any>;
     public readonly germanyMapProjection: GeoProjection;
-    public readonly carousel: Carousel | undefined
 
-    constructor(theme: Theme, settings: SettingsData, newCircleSubject: Subject<CircleData>,
-                showNetworkInfoboxObservable: Subject<NetworkInfoboxData>,
-                updateVersionSubject: Subject<[string, number]>,
-                hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>,
-                updateDatabaseInfoSubject: Subject<DatabaseInfo>,
-                appContainer:  Selection<HTMLDivElement, unknown, null, undefined>) {
-        super(theme, settings, newCircleSubject, showNetworkInfoboxObservable, updateVersionSubject,hatnoteVisServiceChangedSubject, updateDatabaseInfoSubject, appContainer)
+    constructor(canvas: Canvas) {
+        this.canvas = canvas;
 
+        this.root = canvas.appendSVGElement('g').attr("id", "geo-visualisation")
 
         // draw order matters in this function. Do not change without checking the result.
-        this._root = appContainer.append("svg")
-            .attr("id", 'hatnote-canvas')
-            .attr("width", this.width)
-            .attr("height", this.height)
+        this.root
             .attr("style", "max-width: 100%; height: auto;");
 
-        this.worldMap = this._root.append("g").attr("id", "world-map")
-        this.germanyMap = this._root.append("g").attr("id", "germany-map")
+        this.worldMap = this.root.append("g").attr("id", "world-map")
+        this.germanyMap = this.root.append("g").attr("id", "germany-map")
         this.worldMapProjection = this.initWorldMapSvg()
         this.germanyMapProjection = this.initGermanyMapSvg()
-        this.circles_layer = new CirclesLayer(this, this.germanyMapProjection, this.worldMapProjection)
-        this.header = new Header(this, false)
-        // needs to be added last to the svg because it should draw over everything else
-        this.info_box_websocket = new InfoBox(this, InfoboxType.network_websocket_connecting, false, undefined, undefined)
-        this.info_box_legend = new InfoBox(this, InfoboxType.legend, false, undefined, undefined)
-
-        if(settings.carousel_mode && !this.isMobileScreen){
-            this.carousel = new Carousel(this)
-        }
-
-        this.hatnoteVisServiceChangedSubject.subscribe({
-            next: (value) => {
-                this.renderCurrentTheme()
-            }
-        })
+        this.circles_layer = new GeoCirclesLayer(this, this.germanyMapProjection, this.worldMapProjection)
 
         this.renderCurrentTheme();
 
-        window.onresize = (_) => this.windowUpdate();
+        this.canvas.onCarouselTransitionStart.subscribe({
+            next: (_) => this.canvas.geoPopUpContainer.attr("style", "opacity: 0;")
+        })
+
+        this.canvas.onCarouselTransitionEnd.subscribe({
+            next: (_) => this.canvas.geoPopUpContainer.attr("style", "opacity: 1;")
+        })
     }
 
     private germanyProjection(states: any): GeoProjection{
-        const width = this.width;
-        const marginTop = this.theme.header_height;
-        const height = this.height;
+        const width = this.canvas.width;
+        const marginTop = this.canvas.visDirector.hatnoteTheme.header_height + 10;
+        const height = this.canvas.height;
+        const carouselProgressIndicatorSafeZone = this.canvas.visDirector.hatnoteTheme.progress_indicator_y_padding + 10;
 
         // from https://observablehq.com/@sto3psl/map-of-germany-in-d3-js
         const [bottomLeft, topRight] = geoBounds(states);
@@ -93,7 +70,7 @@ export class GeoCanvas extends Canvas{
             .translate([width / 2, height / 2])
             .rotate([lambda, 0, 0])
             .center(center)
-            .scale(scale * 200).fitExtent([[2, marginTop + 2], [width - 2, height - 2 ]], states);
+            .scale(scale * 200).fitExtent([[2, marginTop + 2], [width - 2, height - 2 - carouselProgressIndicatorSafeZone ]], states);
     }
 
     private initGermanyMapSvg(){
@@ -132,25 +109,16 @@ export class GeoCanvas extends Canvas{
     }
 
     private initWorldMapSvg(){
-        const width = this.width;
-        const marginTop = this.theme.header_height;
-        const height = this.height;
+        const width = this.canvas.width;
+        const marginTop = this.canvas.visDirector.hatnoteTheme.header_height + 10;
+        const height = this.canvas.height;
+        const carouselProgressIndicatorSafeZone = this.canvas.visDirector.hatnoteTheme.progress_indicator_y_padding + 10;
 
         // create projection
-        let projection = geoEqualEarth().fitExtent([[2, marginTop + 2], [width - 2, height - 2 ]], {type: "Sphere"})
+        let projection = geoEqualEarth().fitExtent([[2, marginTop + 2], [width - 2, height - 2 - carouselProgressIndicatorSafeZone ]], {type: "Sphere"})
 
         // Fit the projection.
         const path = geoPath(projection);
-
-        // draw order matters here, check before changing something
-        // Add a white sphere with a black border.
-        this.worldMap.append("path")
-            .attr("id", "black-world-boundary")
-            .datum({type: "Sphere"})
-            .attr("fill", "white")
-            .attr("stroke", "currentColor")
-            // @ts-ignore
-            .attr("d", path);
 
         let world: Topology = (countriesJson as unknown) as Topology
         let countriesGeometry: GeometryObject<GeoJsonProperties> = world.objects.countries;
@@ -179,7 +147,13 @@ export class GeoCanvas extends Canvas{
     }
 
     public renderCurrentTheme(){
-        if (this.theme.current_service_theme.id_name == HatnoteVisService.Bloxberg) {
+        if(this.canvas.visDirector.current_visualisation === Visualisation.listenTo){
+            this.root.attr("opacity", "0")
+        } else {
+            this.root.attr("opacity", "1")
+        }
+
+        if (this.canvas.visDirector.current_service_theme.id_name == HatnoteVisService.Bloxberg) {
             this.worldMap.attr("opacity", 1)
             this.germanyMap.attr("opacity", 0)
         } else {
@@ -188,24 +162,10 @@ export class GeoCanvas extends Canvas{
         }
 
         // remove circles from other services
-        this.circles_layer.removeOtherServiceCircles(this.theme.current_service_theme)
-
-        // update header logo
-        this.header.themeUpdate(this.theme.current_service_theme)
+        this.circles_layer.removeOtherServiceCircles(this.canvas.visDirector.current_service_theme)
     }
 
-    // This method does not cover all ui elements. There is no requirement for this nor a need for a mobile version. People
-    // will use the website as a background animation. If you resize the window it is easier to just reload the page for a moment.
-    protected windowUpdate() : void {
-        // update canvas root dimensions
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
-        this._root.attr("width", this.width).attr("height", this.height);
-
-        // update canvas header dimensions
-        this.header.windowUpdate()
-
-        // update websocket info box
-        this.info_box_websocket.windowUpdate()
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, null, any> {
+        return this.root.append(type)
     }
 }

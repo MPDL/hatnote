@@ -1,13 +1,13 @@
 import {Selection} from "d3";
-import {ListenToCanvas} from "./listen/listenToCanvas";
 import {BannerData} from "../observable/model";
 import {Banner} from "./banner";
+import {Canvas} from "./canvas";
 
 export class BannerLayer{
-    public readonly canvas: ListenToCanvas
+    public readonly canvas: Canvas
     private readonly root: Selection<SVGGElement, unknown, null, any>;
     private banner:  Banner | null
-    constructor(canvas: ListenToCanvas) {
+    constructor(canvas: Canvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'banner_layer')
         this.banner = null;
@@ -18,7 +18,7 @@ export class BannerLayer{
     }
 
     public addBanner(bannerData: BannerData){
-        if(this.banner !== null || this.canvas.theme.current_service_theme?.id_name !== this.canvas.theme.getHatnoteService(bannerData.serviceEvent)) {
+        if(this.banner !== null || this.canvas.visDirector.current_service_theme?.id_name !== this.canvas.visDirector.getHatnoteService(bannerData.serviceEvent)) {
             return;
         }
 

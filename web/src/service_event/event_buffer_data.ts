@@ -1,19 +1,21 @@
 import {DelayedCircleEvent, ServiceEvent} from "./model";
 import {getRandomIntInclusive} from "../util/random";
+import {EventBuffer} from "./event_buffer";
+import {Visualisation} from "../theme/model";
 
 export class EventBufferData {
     private eventCirclesMap: Map<string, DelayedCircleEvent[]>
     private eventCirclesArray: DelayedCircleEvent[]
-    private readonly hatnote_map: boolean;
+    private readonly eventBuffer: EventBuffer;
     private radii: number[]
     public circleGroupCatchTimespan; // in ms
     public bufferSplitDelayTimespan; // in ms
     private readonly publishCircleEvent : (circleEvent: DelayedCircleEvent[]) => void
 
-    constructor(publishCircleEvent: (circleEvent: DelayedCircleEvent[]) => void, hatnote_map: boolean, circleGroupCatchTimespan: number, bufferSplitDelayTimespan: number = 1000) {
+    constructor(publishCircleEvent: (circleEvent: DelayedCircleEvent[]) => void, eventBuffer: EventBuffer, circleGroupCatchTimespan: number, bufferSplitDelayTimespan: number = 1000) {
         this.circleGroupCatchTimespan = circleGroupCatchTimespan;
         this.bufferSplitDelayTimespan = bufferSplitDelayTimespan
-        this.hatnote_map = hatnote_map;
+        this.eventBuffer = eventBuffer;
         this.eventCirclesMap = new Map<string, DelayedCircleEvent[]>;
         this.eventCirclesArray = [];
         this.radii = [];
@@ -103,7 +105,7 @@ export class EventBufferData {
 
         let thisBufferData = this
         setTimeout(function(){
-            if(thisBufferData.hatnote_map){
+            if(thisBufferData.eventBuffer.eventBridge.currentVisualisation === Visualisation.geo){
                 for (let [key, circles] of thisBufferData.eventCirclesMap) {
                     if(circles[0].location !== undefined){
                         thisBufferData.publishCircleEvent([{
@@ -139,7 +141,7 @@ export class EventBufferData {
         for (let i = 0; i < this.eventCirclesArray.length; i += chunkSizeInt) {
             const chunk = this.eventCirclesArray.slice(i, i + chunkSizeInt);
             let chunkBufferData = new EventBufferData(
-                (circleEvent) => this.publishCircleEvent(circleEvent),this.hatnote_map,
+                (circleEvent) => this.publishCircleEvent(circleEvent),this.eventBuffer,
                 this.circleGroupCatchTimespan, this.bufferSplitDelayTimespan
             )
             chunkBufferData.addCircleEvents(chunk)

@@ -1,7 +1,7 @@
 import {Selection} from "d3";
 import QrCodeMinerva from "../../assets/images/qr-code-minerva.png";
-import {ListenToCanvas} from "./listen/listenToCanvas";
-import {ServiceTheme} from "../theme/model";
+import {ServiceTheme, Visualisation} from "../theme/model";
+import {Canvas} from "./canvas";
 
 export class QRCode{
     private readonly root: Selection<SVGGElement, unknown, null, any>;
@@ -12,9 +12,9 @@ export class QRCode{
     private readonly image_width = 100;
     private readonly image_right_padding = 50;
     private readonly text_color = '#5d7da1';
-    private readonly canvas: ListenToCanvas;
+    private readonly canvas: Canvas;
 
-    constructor(canvas: ListenToCanvas) {
+    constructor(canvas: Canvas) {
         this.canvas = canvas
         this.root = canvas.appendSVGElement('g').attr('id', 'qr_code')
         this.image = this.root.append('image')
@@ -36,10 +36,12 @@ export class QRCode{
             .attr('text-anchor', 'middle')
 
         this.setPosition()
+        this.setOpacity()
     }
 
     public windowUpdate(){
         this.setPosition();
+        this.setOpacity()
     }
 
     private setPosition(){
@@ -50,9 +52,18 @@ export class QRCode{
         this.line2.attr('x', text_x).attr('dy', 16)
     }
 
+    private setOpacity(){
+        if(!this.canvas.isMobileScreen) {
+            this.root.attr("opacity", 1)
+        } else {
+            this.root.attr("opacity", 0)
+        }
+    }
+
     public themeUpdate(currentServiceTheme: ServiceTheme) {
         this.image.attr('href', currentServiceTheme.qr_code.image)
         this.line1.text(currentServiceTheme.qr_code.line1)
         this.line2.text(currentServiceTheme.qr_code.line2)
+        this.setOpacity()
     }
 }
