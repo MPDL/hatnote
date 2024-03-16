@@ -25,6 +25,8 @@ export interface ServiceTheme {
     header_title: string,
     header_logo: any,
     header_y: number,
+    geo_area_color: string,
+    geo_area_highlight_color: string,
     carousel_time: number
     transition_logo: any,
     qr_code: ThemeQrCode,

@@ -24,6 +24,10 @@ export class GeoCirclesLayer{
     }
 
     private addCircle(circle: CircleData){
+        if(circle.location === undefined) {
+            return;
+        }
+
         let that = this;
 
         // make sure that circle that already exits a removed so that the animation can start from start

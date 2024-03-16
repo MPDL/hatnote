@@ -14,6 +14,8 @@ export const keeper_service_theme: ServiceTheme = {
     header_logo: KeeperLogo,
     carousel_time: 300000,
     header_y: 2,
+    geo_area_color: '#ccc',
+    geo_area_highlight_color: '#eddc4e',
     transition_logo: TransitionKeeperLogo,
     qr_code: {
         image: QrCodeKeeper,

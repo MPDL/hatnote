@@ -41,6 +41,18 @@ export class GeoVisualisation {
             next: (_) => this.canvas.geoPopUpContainer.attr("style", "opacity: 0;")
         })
 
+        this.canvas.onThemeHasChanged.subscribe({
+            next: (_) => {
+                if (this.canvas.visDirector.current_service_theme.id_name === HatnoteVisService.Bloxberg){
+                    this.worldMap.selectAll("#countries-mesh path").interrupt()
+                        .style('fill',this.canvas.visDirector.current_service_theme.geo_area_color)
+                } else {
+                    this.germanyMap.selectAll("#state-mesh path").interrupt()
+                        .style('fill',this.canvas.visDirector.current_service_theme.geo_area_color)
+                }
+            }
+        })
+
         this.canvas.onCarouselTransitionEnd.subscribe({
             next: (_) => this.canvas.geoPopUpContainer.attr("style", "opacity: 1;")
         })
@@ -87,11 +99,11 @@ export class GeoVisualisation {
 
         // Add a path for each country and color it according te this data.
         this.germanyMap.append("g")
-            .attr("id", "countries-mesh")
+            .attr("id", "state-mesh")
             .selectAll("path")
             .data((states as FeatureCollection).features)
             .join("path")
-            .attr("fill", d => '#ccc')
+            .attr("fill", this.canvas.visDirector.current_service_theme.geo_area_color)
             .attr("d", path)
             .attr("data-state-id", c => `${c.id}`)
             .attr("data-state-name", c => `${c.properties?.name}`)
@@ -99,7 +111,7 @@ export class GeoVisualisation {
         let countrymesh = mesh(germany, statesGeometry as GeometryObject, (a: GeometryObject, b: GeometryObject) => a !== b)
         // Add a white mesh.
         this.germanyMap.append("path")
-            .attr("id", "countries-border-mesh")
+            .attr("id", "state-border-mesh")
             .datum(countrymesh)
             .attr("fill", "none")
             .attr("stroke", "white")
@@ -129,7 +141,7 @@ export class GeoVisualisation {
             .selectAll("path")
             .data((countries as FeatureCollection).features)
             .join("path")
-            .attr("fill", d => '#ccc')
+            .attr("fill", this.canvas.visDirector.current_service_theme.geo_area_color)
             .attr("d", path)
             .attr("data-country-id", c => `${c.id}`)
             .attr("data-country-name", c => `${c.properties?.name}`)

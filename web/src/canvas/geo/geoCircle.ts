@@ -8,6 +8,7 @@ export class GeoCircle {
     private readonly circlesLayer: GeoCirclesLayer
     private readonly root:  Selection<SVGCircleElement, unknown, null, undefined>;
     private readonly canvas: Canvas;
+    private readonly areaColor = '#ccc';
 
     constructor(circlesLayer: GeoCirclesLayer, circleData: CircleData,
                 svgCircle:  SVGCircleElement, service: HatnoteVisService) {
@@ -44,7 +45,7 @@ export class GeoCircle {
             .attr('r', 10)
             .duration(40000)
             .on('interrupt', _ => {
-                highlightedArea.interrupt()
+                highlightedArea.interrupt();
                 popUpContainer.remove();
                 if(this.canvas.settings.debug_mode){
                     console.log('Circle removed for ' + circleData.type)
@@ -87,19 +88,19 @@ export class GeoCircle {
 
     private highlightCountry(countryId: string): Selection<BaseType, unknown, null, any> {
         let country = this.canvas.root.select(`path[data-country-id="${countryId}"]`)
-            .style('fill', '#eddc4e')
+            .style('fill', this.canvas.visDirector.current_service_theme.geo_area_highlight_color)
         country.transition()
             .duration(5000)
-            .style('fill', '#ccc');
+            .style('fill', this.canvas.visDirector.current_service_theme.geo_area_color)
         return country
     };
 
     private highlightState(stateId: string): Selection<BaseType, unknown, null, any> {
         let country = this.canvas.root.select(`path[data-state-id="${stateId}"]`)
-            .style('fill', '#eddc4e')
+            .style('fill', this.canvas.visDirector.current_service_theme.geo_area_highlight_color)
         country.transition()
             .duration(5000)
-            .style('fill', '#ccc');
+            .style('fill', this.canvas.visDirector.current_service_theme.geo_area_color)
         return country
     };
 }

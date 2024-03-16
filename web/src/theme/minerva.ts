@@ -14,6 +14,8 @@ export const minerva_service_theme: ServiceTheme = {
     header_logo: MinervaLogo,
     carousel_time: 300000,
     header_y: 4,
+    geo_area_color: '#ccc',
+    geo_area_highlight_color: '#eddc4e',
     transition_logo: TransitionMinervaLogo,
     qr_code: {
         image: QrCodeMinerva,
