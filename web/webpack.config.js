@@ -86,6 +86,7 @@ const frontend = (env) => {
             new HtmlWebpackPlugin({
                 title: "MPDL Hatnote Visualisation",
                 favicon: "./assets/images/favicon.ico",
+                template: "index.html",
                 meta: {
                     title: "MPDL Hatnote Visualisation",
                     description: "Audiovisualisation of MPDL services.",

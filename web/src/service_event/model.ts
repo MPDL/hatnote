@@ -1,3 +1,5 @@
+import {Location} from "../websocket/model";
+
 export interface BannerEvent{
     event: ServiceEvent;
     title: string;
@@ -7,7 +9,8 @@ export interface DelayedCircleEvent {
     event: ServiceEvent;
     title: string;
     radius: number;
-    delay: number
+    delay: number;
+    location?: Location;
 }
 
 export interface BloxbergTransformedData{

@@ -13,6 +13,8 @@ export class HelpPage {
         root.append("p").html('Following url parameters are supported:')
         this.list = root.append("ul")
         this.createHelpListItem('mute', 'mutes sounds.', this.baseUrl+'?<b>mute</b>', `${settings.audio_mute}`)
+        this.createHelpListItem('map', 'shows the geographic visualisation.', this.baseUrl+'?<b>map</b>', `${settings.map}`)
+        this.createHelpListItem('mixed', 'if the carousel mode is activated and map mode deactivated this flag will cause the carousel mix visualisation types.', this.baseUrl+'?<b>mixed</b>', `${settings.mixed}`)
         this.createHelpListItem('service=${option}', 'displays given service. Disables carousel. Options: keeper, minerva, bloxberg.', this.baseUrl+'?<b>service=bloxberg</b>', `carousel mode enabled`)
         this.createHelpListItem('carousel-time=${minerva},${keeper},${bloxberg}', 'modifies the carousel display time for individual services. All values must be given and are read in milliseconds.', this.baseUrl+'?<b>carousel-time=20000,10000,14000</b>', `${settings.carousel_time[0]},${settings.carousel_time[1]},${settings.carousel_time[2]}`)
         this.createHelpListItem('audio-protection=${time}', 'timeframe in which successive events will be muted. Time is read in milliseconds.', this.baseUrl+'?<b>audio-protection=200</b>', `${settings.audioProtection}`)
@@ -24,6 +26,8 @@ export class HelpPage {
         this.createHelpListItem('debug', 'enables debug mode that will generate output in the javascript console.', this.baseUrl+'?<b>debug</b>', `${settings.debug_mode}`)
         this.createHelpListItem('help', 'shows help page.', ` Example: ${this.baseUrl}?<b>help</b>`, `${settings.help}`)
         root.append("p").html(`Url parameters can be combined with "<b>&</b>". Order does not matter. <u>Example</u>: ${this.baseUrl}?mute<b>&</b>service=bloxberg`)
+        root.append("h2").html('GIS (Geographic Information System) for hatnote')
+        root.append("p").html(`Geographic information for hatnote can be modified at <a href="http://gis.hatnote.mpdl.mpg.de" target="_blank">http://gis.hatnote.mpdl.mpg.de</a>`)
 
         document.body.setAttribute("style", "overflow: auto")
     }

@@ -1,13 +1,13 @@
 import {Selection} from "d3";
-import {Canvas} from "./canvas";
 import QrCodeMinerva from "../../assets/images/volume_off_FILL1_wght400_GRAD0_opsz24.svg";
+import {Canvas} from "./canvas";
 
 export class MuteIcon{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
-    private readonly image: Selection<SVGImageElement, unknown, HTMLElement, any>;
-    private readonly text: Selection<SVGTextElement, unknown, HTMLElement, any>;
-    private readonly line1: Selection<SVGTSpanElement, unknown, HTMLElement, any>;
-    private readonly background: Selection<SVGRectElement, unknown, HTMLElement, any>;
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly image: Selection<SVGImageElement, unknown, null, any>;
+    private readonly text: Selection<SVGTextElement, unknown, null, any>;
+    private readonly line1: Selection<SVGTSpanElement, unknown, null, any>;
+    private readonly background: Selection<SVGRectElement, unknown, null, any>;
     private readonly image_width = 100;
     private readonly text_color = '#fff';
     private readonly canvas: Canvas;

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"api/database"
+	"api/geo"
 	"api/globals"
 	"api/institutes"
 	"api/service"
@@ -18,6 +19,8 @@ type Service struct {
 	WebsocketController  websocket.WebsocketInterface
 	InstitutesController institutes.Controller
 	InstitutesData       institutes.InstituteData
+	GeoController        geo.Controller
+	geoInformation       map[string]geo.Location
 	Config               service.ServiceConfig
 	ticker               *time.Ticker
 	done                 chan bool
@@ -25,8 +28,12 @@ type Service struct {
 	dbReconnector        database.Reconnector
 }
 
-func (sc *Service) Init(institutesController institutes.Controller) {
+func (sc *Service) Init(institutesController institutes.Controller, geoController geo.Controller) {
 	log.Info("Init Keeper service.", log.Keeper, log.Service)
+	// world map controller
+	sc.GeoController = geoController
+	sc.loadGeoInformation()
+	// institute controller
 	sc.InstitutesController = institutesController
 	var institutesData, instituteErr = sc.InstitutesController.Load()
 	if instituteErr != nil {
@@ -36,6 +43,8 @@ func (sc *Service) Init(institutesController institutes.Controller) {
 	} else {
 		sc.InstitutesData = institutesData
 	}
+
+	// db reconnector
 	sc.dbReconnector = database.Reconnector{
 		NextDbReconnect:       time.Time{},
 		NumberOfDbReconnects:  0,
@@ -182,6 +191,7 @@ func (sc *Service) processEvent() {
 			// Therefore, multiply seconds by 1000. That way the front end works homogeneously.
 			Timestamp:     fileCreationAndEditing.Timestamp * 1000,
 			InstituteName: instituteName,
+			Location:      sc.geoInformation[emailDomain],
 		})
 	}
 
@@ -196,6 +206,7 @@ func (sc *Service) processEvent() {
 			// Therefore, multiply seconds by 1000. That way the front end works homogeneously.
 			Timestamp:     libraryCreation.Timestamp * 1000,
 			InstituteName: instituteName,
+			Location:      sc.geoInformation[emailDomain],
 		})
 	}
 
@@ -291,5 +302,21 @@ func (sc *Service) UpdateInstitutesData() {
 		mail.SendErrorMail(logMessage, instituteErr)
 	} else {
 		sc.InstitutesData = institutesData
+	}
+}
+
+func (sc *Service) UpdateGeoInformation() {
+	sc.loadGeoInformation()
+}
+
+func (sc *Service) loadGeoInformation() {
+	// no need to use mutex lock/unlock since the usage of the data is not sensible
+	var geoInformation, geoInformationErr = sc.GeoController.Load("mpg-institutes")
+	if geoInformationErr != nil {
+		logMessage := "Error while loading geo information data."
+		log.Error(logMessage, geoInformationErr, log.Keeper, log.Service)
+		mail.SendErrorMail(logMessage, geoInformationErr)
+	} else {
+		sc.geoInformation = geoInformation
 	}
 }

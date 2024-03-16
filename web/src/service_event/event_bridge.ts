@@ -8,52 +8,69 @@ import {
     BloxbergTransformedData,
     DelayedCircleEvent,
     HatnoteVisService,
-    KeeperTransformedData, MinervaTransformedData
+    KeeperTransformedData,
+    MinervaTransformedData
 } from "./model";
 import {EventBuffer} from "./event_buffer";
 import {SettingsData} from "../configuration/hatnote_settings";
 import {KeeperTransformer} from "./keeper_transformer";
 import {MinervaTransformer} from "./minerva_transformer";
+import {Visualisation} from "../theme/model";
 
 export class EventBridge{
     private bloxbergTransformer: BloxbergTransformer;
     private keeperTransformer: KeeperTransformer;
     private minervaTransformer: MinervaTransformer;
-    private audio: HatnoteAudio;
+    private audio: HatnoteAudio | undefined;
     private newCircleSubject: Subject<CircleData>;
     private newBannerSubject: Subject<BannerData>;
-    private hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>
+    private onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>
+    private onThemeHasChanged: BehaviorSubject<[HatnoteVisService, Visualisation]>
     private eventBuffer: EventBuffer;
     private updateVersionSubject: Subject<[string,number]>
     private _currentService: HatnoteVisService
+    private _currentVisualisation: Visualisation
     private settings_data: SettingsData
     private readonly event_delay_protection: number
     public get currentService(): HatnoteVisService{
         return this._currentService;
     }
-    constructor(audio: HatnoteAudio, newCircleSubject: Subject<CircleData>, newBanenrSubject: Subject<BannerData>,
-                updateVersionSubject: Subject<[string,number]>, hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>,
+
+    public get currentVisualisation(): Visualisation{
+        return this._currentVisualisation;
+    }
+    constructor(audio: HatnoteAudio | undefined, newCircleSubject: Subject<CircleData>, newBanenrSubject: Subject<BannerData>,
+                updateVersionSubject: Subject<[string,number]>,
+                onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                onCarouselTransitionMid: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]>,
                 settings_data: SettingsData) {
         this.settings_data = settings_data
         this.event_delay_protection = settings_data.event_delay_protection
         this._currentService = settings_data.initialService
+        this._currentVisualisation = settings_data.map ? Visualisation.geo : Visualisation.listenTo
         this.updateVersionSubject = updateVersionSubject
         this.newBannerSubject = newBanenrSubject
-        this.hatnoteVisServiceChangedSubject = hatnoteVisServiceChangedSubject
+        this.onCarouselTransitionStart = onCarouselTransitionStart
+        this.onThemeHasChanged = onCarouselTransitionMid
         this.minervaTransformer = new MinervaTransformer()
         this.bloxbergTransformer = new BloxbergTransformer(settings_data)
         this.keeperTransformer = new KeeperTransformer(settings_data)
         this.audio = audio
         this.newCircleSubject = newCircleSubject
         this.eventBuffer = new EventBuffer(this.settings_data.default_event_buffer_timespan,
-            (value) => this.publishCircleEvent(value))
+            (value) => this.publishCircleEvent(value), this)
 
-        this.hatnoteVisServiceChangedSubject.subscribe({
+        this.onCarouselTransitionStart.subscribe({
             next: (value) => {
-                this._currentService = value
-                if (settings_data.carousel_mode) {
-                    audio.play_transition_sound()
-                }
+                this.audio?.play_transition_sound()
+            }
+        })
+
+        this.onThemeHasChanged.subscribe({
+            next: (value) => {
+                this._currentService = value[0]
+                this._currentVisualisation = value[1]
             }
         })
     }
@@ -171,18 +188,26 @@ export class EventBridge{
         }
     }
 
-    public publishCircleEvent(circleEvent: DelayedCircleEvent){
+    public publishCircleEvent(circleEvents: DelayedCircleEvent[]){
         // otherwise circles will be added to the canvas when the tab is inactive but will never fade out because the
         // browser stops animations to save energy and to increase performance when a tab is inactive
         if (!document.hidden){
-            this.audio.play_sound(circleEvent.radius, circleEvent.event)
-            this.newCircleSubject.next({label_text: circleEvent.title, circle_radius: circleEvent.radius, type: circleEvent.event})
+            for (const delayedCircleEvent of circleEvents) {
+                if(this._currentVisualisation === Visualisation.listenTo){
+                    this.audio?.play_sound(delayedCircleEvent.radius, delayedCircleEvent.event)
+                }
+                this.newCircleSubject.next({label_text: delayedCircleEvent.title,
+                    circle_radius: delayedCircleEvent.radius, type: delayedCircleEvent.event,
+                    location: delayedCircleEvent.location})
+            }
         }
     }
 
     public publishBannerEvent(bannerEvent: BannerEvent){
         if (!document.hidden){
-            this.audio.play_sound(0, bannerEvent.event)
+            if(this._currentVisualisation === Visualisation.listenTo) {
+                this.audio?.play_sound(0, bannerEvent.event)
+            }
             this.newBannerSubject.next({message: bannerEvent.title, serviceEvent: bannerEvent.event})
         }
     }

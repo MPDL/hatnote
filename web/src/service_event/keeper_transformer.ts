@@ -94,7 +94,7 @@ export class KeeperTransformer{
 
                 if (eventType !== undefined) {
                     fileCreationsAndEditingsEvents.push({delay: sleepTime, event: eventType, title: title,
-                        radius: circleRadius})
+                        radius: circleRadius, location: fileCreationsAndEditings[index].Location})
                 }
             }
         }
@@ -127,7 +127,7 @@ export class KeeperTransformer{
 
                 if (eventType !== undefined) {
                     libraryCreationsEvents.push({delay: sleepTime, event: eventType, title: title,
-                        radius: 70})
+                        radius: 70, location: libraryCreations[index].Location})
                 }
             }
         }

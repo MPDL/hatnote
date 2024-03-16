@@ -2,25 +2,25 @@ import {Selection} from "d3";
 import {Header} from "./header";
 import {ThemeLegendItem} from "../theme/model";
 import {InfoBox} from "./info_box";
-import {Theme} from "../theme/theme";
+import {VisualisationDirector} from "../theme/visualisationDirector";
 import {Canvas} from "./canvas";
 
 export class LegendItem{
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any> | undefined;
-    private readonly title: Selection<SVGTextElement, unknown, HTMLElement, any> | undefined;
-    private readonly smallTitle1: Selection<SVGTextElement, unknown, HTMLElement, any> | undefined;
-    private readonly smallTitle2: Selection<SVGTextElement, unknown, HTMLElement, any> | undefined;
-    private readonly circle: Selection<SVGCircleElement, unknown, HTMLElement, any> | undefined;
+    private readonly root: Selection<SVGGElement, unknown, null, any> | undefined;
+    private readonly title: Selection<SVGTextElement, unknown, null, any> | undefined;
+    private readonly smallTitle1: Selection<SVGTextElement, unknown, null, any> | undefined;
+    private readonly smallTitle2: Selection<SVGTextElement, unknown, null, any> | undefined;
+    private readonly circle: Selection<SVGCircleElement, unknown, null, any> | undefined;
     private readonly header: Header | undefined;
     private readonly legendInfoBox: InfoBox | undefined;
     private readonly canvas: Canvas;
-    private readonly theme: Theme;
+    private readonly theme: VisualisationDirector;
 
     constructor(header: Header | undefined, legendInfoBox: InfoBox | undefined, canvas: Canvas) {
         this.header = header;
         this.legendInfoBox = legendInfoBox;
         this.canvas = canvas
-        this.theme = this.canvas.theme
+        this.theme = this.canvas.visDirector
 
         if(this.header) {
             this.root = this.header?.appendSVGElement('g')
@@ -37,33 +37,33 @@ export class LegendItem{
             .text('legend item')
             .attr('font-family', 'HatnoteVisNormal')
             .attr('font-size', '26px')
-            .attr('fill', this.theme.header_text_color)
-            .attr('x', this.theme.legend_item_circle_r + 10)
-            .attr('y', this.theme.header_height/2 + 8.5)
+            .attr('fill', this.theme.hatnoteTheme.header_text_color)
+            .attr('x', this.theme.hatnoteTheme.legend_item_circle_r + 10)
+            .attr('y', this.theme.hatnoteTheme.header_height/2 + 8.5)
             .attr('opacity', 1)
 
         this.smallTitle1 = this.root?.append('text')
             .text('legend item small1')
             .attr('font-family', 'HatnoteVisNormal')
             .attr('font-size', '16px')
-            .attr('fill', this.theme.header_text_color)
-            .attr('x', this.theme.legend_item_circle_r + 10)
-            .attr('y', this.theme.header_height/2 - 4)
+            .attr('fill', this.theme.hatnoteTheme.header_text_color)
+            .attr('x', this.theme.hatnoteTheme.legend_item_circle_r + 10)
+            .attr('y', this.theme.hatnoteTheme.header_height/2 - 4)
             .attr('opacity', 0)
 
         this.smallTitle2 = this.root?.append('text')
             .text('legend item small2')
             .attr('font-family', 'HatnoteVisNormal')
             .attr('font-size', '16px')
-            .attr('fill', this.theme.header_text_color)
-            .attr('x', this.theme.legend_item_circle_r + 10)
-            .attr('y', this.theme.header_height/2 + 13)
+            .attr('fill', this.theme.hatnoteTheme.header_text_color)
+            .attr('x', this.theme.hatnoteTheme.legend_item_circle_r + 10)
+            .attr('y', this.theme.hatnoteTheme.header_height/2 + 13)
             .attr('opacity', 0)
 
         this.circle = this.root?.append('circle')
-            .attr('r', this.theme.legend_item_circle_r)
+            .attr('r', this.theme.hatnoteTheme.legend_item_circle_r)
             .attr('cx', 0)
-            .attr('cy', this.theme.header_height/2)
+            .attr('cy', this.theme.hatnoteTheme.header_height/2)
             .attr('fill', '#000') // default value
     }
 

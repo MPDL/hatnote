@@ -1,42 +1,49 @@
 import {select, Selection} from "d3";
-import '../style/normalize.css';
-import '../style/main.css';
-import {CirclesLayer} from "./circles_layer";
-import {BannerLayer} from "./banner_layer";
-import {QRCode} from "./qr_code";
-import {Header} from "./header";
-import {InfoBox, InfoboxType} from "./info_box";
-import {Theme} from "../theme/theme";
 import {BehaviorSubject, Subject} from "rxjs";
 import {BannerData, CircleData, DatabaseInfo, NetworkInfoboxData} from "../observable/model";
 import {SettingsData} from "../configuration/hatnote_settings";
+import {InfoBox, InfoboxType} from "./info_box";
+import {Header} from "./header";
+import {VisualisationDirector} from "../theme/visualisationDirector";
 import {HatnoteVisService} from "../service_event/model";
-import {Carousel} from "./carousel";
 import {Navigation} from "./navigation";
+import {BannerLayer} from "./banner_layer";
+import {QRCode} from "./qr_code";
 import {MuteIcon} from "./mute_icon";
+import {Carousel} from "./carousel";
+import {ListenToVisualisation} from "./listen/listenToVisualisation";
+import {GeoVisualisation} from "./geo/geoVisualisation";
+import {Visualisation} from "../theme/model";
+import {set} from "lodash";
 
 export class Canvas {
-    public readonly circles_layer: CirclesLayer;
     public readonly banner_layer:  BannerLayer;
-    public readonly qr_code: QRCode | undefined;
+    public readonly qr_code: QRCode;
     public readonly header: Header;
-    public readonly navigation: Navigation | undefined;
-    public readonly isMobileScreen: boolean = false;
-    public readonly info_box_websocket: InfoBox;
-    public readonly info_box_audio: InfoBox;
-    public readonly info_box_legend: InfoBox;
+    public readonly visDirector: VisualisationDirector;
     public readonly mute_icon: MuteIcon;
-    public readonly theme: Theme;
+    public readonly carousel: Carousel | undefined
+    public readonly navigation: Navigation | undefined;
+    public readonly info_box_websocket: InfoBox;
+    public readonly info_box_legend: InfoBox;
+    public readonly isMobileScreen: boolean = false;
     public readonly settings: SettingsData;
-    public readonly newCircleSubject: Subject<CircleData>
-    public readonly newBannerSubject: Subject<BannerData>
-    public readonly hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>
-    public readonly showAudioInfoboxObservable: Subject<boolean>
     public readonly showNetworkInfoboxObservable: Subject<NetworkInfoboxData>
     public readonly updateDatabaseInfoSubject: Subject<DatabaseInfo>
+    public readonly onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>
+    public readonly onThemeHasChanged: BehaviorSubject<[HatnoteVisService, Visualisation]>
+    public readonly onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]>
     public readonly updateVersionSubject: Subject<[string, number]>
-    public readonly carousel: Carousel | undefined
-    private readonly root: Selection<SVGSVGElement, unknown, HTMLElement, any>;
+    public readonly newCircleSubject: Subject<CircleData>
+    public readonly newBannerSubject: Subject<BannerData>
+    private readonly listenToVis: ListenToVisualisation;
+    public readonly geoPopUpContainer:  Selection<HTMLDivElement, unknown, null, undefined>
+    private readonly geoVis: GeoVisualisation;
+    public readonly appContainer:  Selection<HTMLDivElement, unknown, null, undefined>;
+    private readonly _root: Selection<SVGSVGElement, unknown, null, any>;
+    public get root(): Selection<SVGSVGElement, unknown, null, any> {
+        return this._root;
+    }
     private _width: number;
     private _height: number;
     public get width(): number {
@@ -45,52 +52,57 @@ export class Canvas {
     public get height(): number {
         return this._height;
     }
-    private set width(value: number) {
+    protected set width(value: number) {
         this._width = value;
     }
-    private set height(value: number) {
+    protected set height(value: number) {
         this._height = value;
     }
 
-    constructor(theme: Theme, settings: SettingsData, newCircleSubject: Subject<CircleData>,
-                newBannerSubject: Subject<BannerData>,
-                showAudioInfoboxObservable: Subject<boolean>,
-                showNetworkInfoboxObservable: Subject<NetworkInfoboxData>,
-                updateVersionSubject: Subject<[string, number]>,
-                hatnoteVisServiceChangedSubject: BehaviorSubject<HatnoteVisService>,
-                updateDatabaseInfoSubject: Subject<DatabaseInfo>) {
+    constructor(theme: VisualisationDirector, settings: SettingsData, newCircleSubject: Subject<CircleData>,
+                          showNetworkInfoboxObservable: Subject<NetworkInfoboxData>,
+                          updateVersionSubject: Subject<[string, number]>,
+                          onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                          onCarouselTransitionMid: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                          onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                          updateDatabaseInfoSubject: Subject<DatabaseInfo>,
+                          newBannerSubject: Subject<BannerData>,
+                          appContainer:  Selection<HTMLDivElement, unknown, null, undefined>) {
         this._width = window.innerWidth;
         this._height = window.innerHeight;
-        this.theme = theme;
+        this.visDirector = theme;
         this.settings = settings
+        this.onCarouselTransitionStart = onCarouselTransitionStart
+        this.onThemeHasChanged = onCarouselTransitionMid
+        this.onCarouselTransitionEnd = onCarouselTransitionEnd
         this.newCircleSubject = newCircleSubject
-        this.newBannerSubject = newBannerSubject
-        this.showAudioInfoboxObservable = showAudioInfoboxObservable
         this.showNetworkInfoboxObservable = showNetworkInfoboxObservable
         this.updateDatabaseInfoSubject = updateDatabaseInfoSubject
         this.updateVersionSubject = updateVersionSubject
-        this.hatnoteVisServiceChangedSubject = hatnoteVisServiceChangedSubject
-
-        if (this._width <= 430 || this._height <= 430) { // iPhone 12 Pro Max 430px viewport width
+        this.appContainer = appContainer;
+        this.newBannerSubject = newBannerSubject
+        if (this.width <= 430 || this.height <= 430) { // iPhone 12 Pro Max 430px viewport width
             this.isMobileScreen = true;
         }
 
         // draw order matters in this function. Do not change without checking the result.
-        this.root = select("#app").append("svg")
-            .attr("width", this._width)
-            .attr("height", this._height)
-            .attr('fill', theme.svg_background_color)
+        this._root = this.appContainer.append("svg")
+            .attr("width", this.width)
+            .attr("height", this.height)
+            .attr('fill', this.visDirector.hatnoteTheme.svg_background_color)
             .style('background-color', '#1c2733');
+        this.geoPopUpContainer = this.appContainer.append('div')
+            .attr("id","geo-visualisation-popup-container").attr("style", "opacity: 1;")
 
-        this.circles_layer = new CirclesLayer(this)
+        this.qr_code = new QRCode(this)
+
+        this.listenToVis = new ListenToVisualisation(this)
+        this.geoVis = new GeoVisualisation(this)
+
         this.banner_layer = new BannerLayer(this)
-        if (!this.isMobileScreen) {
-            this.qr_code = new QRCode(this)
-        }
         this.header = new Header(this)
         // needs to be added last to the svg because it should draw over everything else
         this.info_box_websocket = new InfoBox(this, InfoboxType.network_websocket_connecting)
-        this.info_box_audio = new InfoBox(this, InfoboxType.audio_enable)
         this.info_box_legend = new InfoBox(this, InfoboxType.legend)
 
         if(settings.carousel_mode && !this.isMobileScreen){
@@ -107,33 +119,40 @@ export class Canvas {
         // and block the cursor event of the mute icon
         this.mute_icon = new MuteIcon(this)
 
+        this.onThemeHasChanged.subscribe({
+            next: (value) => {
+                this.renderCurrentTheme()
+            }
+        })
+
         this.renderCurrentTheme();
 
-        if(!settings.kiosk_mode && !settings.audio_mute){
+        if(!settings.kiosk_mode && !settings.audio_mute && !(!settings.carousel_mode && settings.map)){
             this.mute_icon.show()
         }
 
         window.onresize = (_) => this.windowUpdate();
     }
 
-    public appendSVGElement(type: string): Selection<SVGGElement, unknown, HTMLElement, any> {
-        return this.root.append(type)
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, null, any> {
+        return this._root.append(type)
     }
 
     public renderCurrentTheme(){
-        // remove circles from other services
-        this.circles_layer.removeOtherServiceCircles(this.theme.current_service_theme)
+        // remove circles and visualisation from other services
+        this.listenToVis.renderCurrentTheme()
+        this.geoVis.renderCurrentTheme()
 
         // remove banner
         this.banner_layer.removeBanner();
 
         // update qr code
-        this.qr_code?.themeUpdate(this.theme.current_service_theme)
+        this.qr_code.themeUpdate(this.visDirector.current_service_theme)
 
         // update header logo
-        this.header.themeUpdate(this.theme.current_service_theme)
+        this.header.themeUpdate(this.visDirector.current_service_theme)
 
-        this.navigation?.themeUpdate(this.theme.current_service_theme)
+        this.navigation?.themeUpdate(this.visDirector.current_service_theme)
     }
 
     // This method does not cover all ui elements. There is no requirement for this nor a need for a mobile version. People
@@ -142,7 +161,7 @@ export class Canvas {
         // update canvas root dimensions
         this.width = window.innerWidth;
         this.height = window.innerHeight;
-        this.root.attr("width", this._width).attr("height", this._height);
+        this._root.attr("width", this.width).attr("height", this.height);
 
         // update canvas header dimensions
         this.header.windowUpdate()
@@ -161,9 +180,6 @@ export class Canvas {
 
         // update websocket info box
         this.info_box_websocket.windowUpdate()
-
-        // update audio info box
-        this.info_box_audio.windowUpdate()
 
         // update mute icon
         this.mute_icon.windowUpdate()

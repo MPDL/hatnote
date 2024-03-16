@@ -1,10 +1,10 @@
-import {Canvas} from "./canvas";
 import {Transition} from "./transition";
 import {ProgressIndicator} from "./progress_indicator";
 import {DatabaseInfo} from "../observable/model";
-import {Subject} from "rxjs";
+import {BehaviorSubject, Subject} from "rxjs";
 import {HatnoteVisService} from "../service_event/model";
-import {ServiceTheme} from "../theme/model";
+import {ServiceTheme, Visualisation} from "../theme/model";
+import {Canvas} from "./canvas";
 
 export class Carousel {
     public readonly transition: Transition;
@@ -14,19 +14,32 @@ export class Carousel {
     public serviceError: Map<HatnoteVisService, boolean>
     public allServicesHaveError: boolean
     private startCarouselService: HatnoteVisService | null
-    private readonly canvas: Canvas
+    private readonly canvas: Canvas;
+    private nextTheme: ServiceTheme | undefined;
     private currentCarouselOrderIndex;
     constructor(canvas: Canvas) {
         this.canvas = canvas
         this.transition = new Transition(this.canvas)
+        this.transition.onTransitionStart.subscribe(_ => this.canvas.onCarouselTransitionStart.next(
+            [this.canvas.visDirector.current_service_theme.id_name,this.canvas.visDirector.current_visualisation]))
+        this.transition.onTransitionMid.subscribe(_ => {
+            this.initNextTheme();
+            this.canvas.onThemeHasChanged.next(
+            [this.canvas.visDirector.current_service_theme.id_name,this.canvas.visDirector.current_visualisation]);
+        })
+        this.transition.onTransitionEnd.subscribe(_ => {
+            this.canvas.onCarouselTransitionEnd.next(
+                [this.canvas.visDirector.current_service_theme.id_name,this.canvas.visDirector.current_visualisation])
+            this.continueCarousel();
+        })
         this.progess_indicator = new ProgressIndicator(this.canvas)
         this.updateDatabaseInfoSubject = this.canvas.updateDatabaseInfoSubject
         this.serviceError = new Map<HatnoteVisService, boolean>()
         this.currentCarouselOrderIndex = 0
         this.allServicesHaveError = false
-        this.startCarouselService = this.canvas.theme.carousel_service_order[0].id_name
+        this.startCarouselService = this.canvas.visDirector.carousel_service_order[0].id_name
         this.databaseInfo = new Map<HatnoteVisService, DatabaseInfo>()
-        this.canvas.theme.service_themes.forEach((serviceTheme => {
+        this.canvas.visDirector.service_themes.forEach((serviceTheme => {
             this.serviceError.set(serviceTheme.id_name, false)
             this.databaseInfo.set(serviceTheme.id_name, {
                 service: serviceTheme.id_name,
@@ -54,8 +67,8 @@ export class Carousel {
 
                 let serviceErrors = 0
                 this.startCarouselService = null
-                for (let i = 0; i < this.canvas.theme.carousel_service_order.length; i++) {
-                    let serviceTheme = this.canvas.theme.carousel_service_order[i]
+                for (let i = 0; i < this.canvas.visDirector.carousel_service_order.length; i++) {
+                    let serviceTheme = this.canvas.visDirector.carousel_service_order[i]
                     if(this.serviceError.get(serviceTheme.id_name)){
                         serviceErrors++
                     } else {
@@ -65,7 +78,7 @@ export class Carousel {
                     }
                 }
 
-                if(serviceErrors === this.canvas.theme.service_themes.size){
+                if(serviceErrors === this.canvas.visDirector.service_themes.size){
                     this.allServicesHaveError = true
                 }
 
@@ -73,11 +86,9 @@ export class Carousel {
                 if(this.serviceError.get(dbInfo.service)){
                     this.progess_indicator.service_indicators.get(dbInfo.service)?.setError()
 
-                    if(dbInfo.service === this.canvas.theme.current_service_theme.id_name && !this.allServicesHaveError) {
+                    if(dbInfo.service === this.canvas.visDirector.current_service_theme.id_name && !this.allServicesHaveError) {
                         this.initNextTheme()
-                        this.transition.startTransition(this.canvas.theme.current_service_theme,
-                            (_) => this.canvas.renderCurrentTheme(),
-                            (_) => this.continueCarousel())
+                        this.transition.startTransition(this.canvas.visDirector.current_service_theme)
                     }
                     return;
                 }
@@ -89,15 +100,15 @@ export class Carousel {
         let nextTheme: ServiceTheme | undefined;
 
         let iterationNumber = 0
-        let iterationNumberLimit = this.canvas.theme.carousel_service_order.length;
+        let iterationNumberLimit = this.canvas.visDirector.carousel_service_order.length;
         let iterationIndex = (this.currentCarouselOrderIndex + 1) % iterationNumberLimit
         while(iterationNumber < iterationNumberLimit){
-            if(this.serviceError.get(this.canvas.theme.carousel_service_order[iterationIndex].id_name)){
+            if(this.serviceError.get(this.canvas.visDirector.carousel_service_order[iterationIndex].id_name)){
                 iterationIndex = (iterationIndex + 1) % iterationNumberLimit
                 iterationNumber++;
             } else {
                 this.currentCarouselOrderIndex = iterationIndex
-                nextTheme = this.canvas.theme.carousel_service_order[iterationIndex]
+                nextTheme = this.canvas.visDirector.carousel_service_order[iterationIndex]
                 break;
             }
         }
@@ -106,11 +117,11 @@ export class Carousel {
     }
 
     private initNextTheme(){
-        let nextTheme: ServiceTheme | undefined = this.getNextServiceTheme()
-        if(nextTheme){
-            this.canvas.theme.set_current_theme(nextTheme);
-            this.progess_indicator.setCurrentServiceIndicator(nextTheme)
-            this.canvas.hatnoteVisServiceChangedSubject.next(this.canvas.theme.current_service_theme.id_name)
+        let nextVisualisation = this.canvas.visDirector.getNextVisualisation()
+        if(this.nextTheme){
+            this.canvas.visDirector.set_current_theme(this.nextTheme);
+            this.canvas.visDirector.setCurrentVisualisation(nextVisualisation);
+            this.progess_indicator.setCurrentServiceIndicator(this.nextTheme)
         }
     }
 
@@ -123,7 +134,7 @@ export class Carousel {
         if(this.canvas.settings.carousel_mode) {
             let indicator = this.progess_indicator.currentServiceIndicator;
 
-            if (this.canvas.theme.current_service_theme.id_name === this.startCarouselService) {
+            if (this.canvas.visDirector.current_service_theme.id_name === this.startCarouselService) {
                 this.serviceError.forEach((error, service) => {
                     if (!error) {
                         this.progess_indicator.service_indicators.get(service)?.reset()
@@ -133,10 +144,10 @@ export class Carousel {
 
             indicator?.start(() => {
                 if (!this.allServicesHaveError) {
-                    this.initNextTheme()
-                    this.transition.startTransition(this.canvas.theme.current_service_theme,
-                        (_) => this.canvas.renderCurrentTheme(),
-                        (_) => this.continueCarousel())
+                    this.nextTheme = this.getNextServiceTheme()
+                    if(this.nextTheme !== undefined) {
+                        this.transition.startTransition(this.nextTheme)
+                    }
                 }
             })
         }

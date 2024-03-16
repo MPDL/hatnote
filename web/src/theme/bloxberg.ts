@@ -14,6 +14,8 @@ export const bloxberg_service_theme: ServiceTheme = {
     header_logo: BloxbergLogo,
     carousel_time: 300000,
     header_y: 0,
+    geo_area_color: '#ccc',
+    geo_area_highlight_color: '#eddc4e',
     transition_logo: TransitionBloxbergLogo,
     qr_code: {
         image: QrCodeBloxberg,

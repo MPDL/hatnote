@@ -25,7 +25,9 @@ export class HatnoteSettings {
             audio_mute: false,
             circle_radius_max: window.innerHeight/2,
             circle_radius_min: 3,
-            help: false
+            help: false,
+            map: false,
+            mixed: false
         }
 
         this.loadUrlParameters()
@@ -40,6 +42,14 @@ export class HatnoteSettings {
             this._settings_data.help = true;
             // needs to be returned, otherwise the default values of the help page will be overwritten.
             return;
+        }
+
+        if(url_search_parameters.has("map")){
+            this._settings_data.map = true;
+        }
+
+        if(url_search_parameters.has("mixed")){
+            this._settings_data.mixed = true;
         }
 
         if(url_search_parameters.has("mute")){
@@ -165,6 +175,10 @@ export class HatnoteSettings {
                 this._settings_data.initialService = HatnoteVisService.Minerva
                 this._settings_data.carousel_mode = true;
         }
+
+        if (this._settings_data.kiosk_mode){
+            this._settings_data.mixed = true;
+        }
     }
 }
 
@@ -185,5 +199,7 @@ export interface SettingsData{
     audio_mute: boolean,
     circle_radius_max: number,
     circle_radius_min: number,
-    help: boolean
+    help: boolean,
+    map: boolean,
+    mixed: boolean
 }

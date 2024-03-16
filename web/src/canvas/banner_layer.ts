@@ -1,11 +1,11 @@
 import {Selection} from "d3";
-import {Canvas} from "./canvas";
 import {BannerData} from "../observable/model";
 import {Banner} from "./banner";
+import {Canvas} from "./canvas";
 
 export class BannerLayer{
     public readonly canvas: Canvas
-    private readonly root: Selection<SVGGElement, unknown, HTMLElement, any>;
+    private readonly root: Selection<SVGGElement, unknown, null, any>;
     private banner:  Banner | null
     constructor(canvas: Canvas) {
         this.canvas = canvas
@@ -18,14 +18,14 @@ export class BannerLayer{
     }
 
     public addBanner(bannerData: BannerData){
-        if(this.banner !== null || this.canvas.theme.current_service_theme?.id_name !== this.canvas.theme.getHatnoteService(bannerData.serviceEvent)) {
+        if(this.banner !== null || this.canvas.visDirector.current_service_theme?.id_name !== this.canvas.visDirector.getHatnoteService(bannerData.serviceEvent)) {
             return;
         }
 
         this.banner = new Banner(this, bannerData)
     }
 
-    public appendSVGElement(type: string): Selection<SVGGElement, unknown, HTMLElement, any> {
+    public appendSVGElement(type: string): Selection<SVGGElement, unknown, null, any> {
         return this.root.append(type)
     }
 

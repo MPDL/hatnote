@@ -1,20 +1,24 @@
 import {EventBufferData} from "./event_buffer_data";
 import {DelayedCircleEvent, ServiceEvent} from "./model";
 import {getRandomIntInclusive} from "../util/random";
+import {EventBridge} from "./event_bridge";
+import {Visualisation} from "../theme/model";
 
 export class EventBuffer {
     private readonly eventBuffer: Map<ServiceEvent, EventBufferData>;
+    public readonly eventBridge: EventBridge;
 
-    constructor(default_event_buffer_timespan: number, publishCircleEvent: (circleEvent: DelayedCircleEvent) => void) {
+    constructor(default_event_buffer_timespan: number, publishCircleEvent: (circleEvent: DelayedCircleEvent[]) => void, eventBridge: EventBridge) {
+        this.eventBridge = eventBridge;
         this.eventBuffer = new Map([
-            [ServiceEvent.bloxberg_block, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
-            [ServiceEvent.bloxberg_confirmed_transaction, new EventBufferData(publishCircleEvent, default_event_buffer_timespan, 1200)],
-            [ServiceEvent.keeper_file_create, new EventBufferData(publishCircleEvent, 1000,1000)], // Keeper only returns time precision of seconds
-            [ServiceEvent.keeper_file_edit, new EventBufferData(publishCircleEvent, 1000,1000)], // Keeper only returns time precision of seconds
-            [ServiceEvent.keeper_new_library, new EventBufferData(publishCircleEvent, 1000,1000)], // Keeper only returns time precision of seconds
-            [ServiceEvent.minerva_direct_message, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
-            [ServiceEvent.minerva_private_message, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
-            [ServiceEvent.minerva_public_message, new EventBufferData(publishCircleEvent, default_event_buffer_timespan)],
+            [ServiceEvent.bloxberg_block, new EventBufferData(publishCircleEvent, this, default_event_buffer_timespan)],
+            [ServiceEvent.bloxberg_confirmed_transaction, new EventBufferData(publishCircleEvent, this, default_event_buffer_timespan,1200)],
+            [ServiceEvent.keeper_file_create, new EventBufferData(publishCircleEvent, this, 1000,1000)], // Keeper only returns time precision of seconds
+            [ServiceEvent.keeper_file_edit, new EventBufferData(publishCircleEvent, this, 1000,1000)], // Keeper only returns time precision of seconds
+            [ServiceEvent.keeper_new_library, new EventBufferData(publishCircleEvent, this, 1000,1000)], // Keeper only returns time precision of seconds
+            [ServiceEvent.minerva_direct_message, new EventBufferData(publishCircleEvent, this, default_event_buffer_timespan)],
+            [ServiceEvent.minerva_private_message, new EventBufferData(publishCircleEvent, this, default_event_buffer_timespan)],
+            [ServiceEvent.minerva_public_message, new EventBufferData(publishCircleEvent, this, default_event_buffer_timespan)],
         ]);
     }
 
@@ -29,17 +33,26 @@ export class EventBuffer {
         if(eventBufferData === undefined)
             return
 
-        if(eventBufferData.isEventCirclesEmpty()){
+        if(eventBufferData.isEventCirclesArrayEmpty()){
+            let that = this;
             setTimeout(function(){
                 switch (circleEvent) {
                     case ServiceEvent.keeper_file_create:
                     case ServiceEvent.keeper_file_edit:
-                        let splitRandom = getRandomIntInclusive(1,4)
-                        eventBufferData?.splitBufferAndRelease(splitRandom)
+                        if (that.eventBridge.currentVisualisation !== Visualisation.geo) {
+                            let splitRandom = getRandomIntInclusive(1,4)
+                            eventBufferData?.splitBufferAndRelease(splitRandom)
+                        } else {
+                            eventBufferData?.releaseBuffer()
+                        }
                         break;
                     case ServiceEvent.bloxberg_confirmed_transaction:
-                        let splitRandomBloxberg = 3
-                        eventBufferData?.splitBufferAndRelease(splitRandomBloxberg)
+                        if (that.eventBridge.currentVisualisation !== Visualisation.geo) {
+                            let splitRandomBloxberg = 3
+                            eventBufferData?.splitBufferAndRelease(splitRandomBloxberg)
+                        } else {
+                            eventBufferData?.releaseBuffer()
+                        }
                         break;
                     default:
                         eventBufferData?.releaseBuffer()

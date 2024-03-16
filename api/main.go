@@ -39,12 +39,16 @@ func main() {
 	log.Info("Loading institute data ...", log.Main)
 	env.Dependencies.InstitutesDataController.Init(env.Config.InstituteData)
 
+	// Load geo information data
+	log.Info("Loading geo information data ...", log.Main)
+	env.Dependencies.GeoController.Init(env.Config.Geographic)
+
 	// Start hatnote service
 	log.Info("Starting hatnote service ...", log.Main)
 	for i, _ := range env.Dependencies.HatnoteServiceController {
 		go func(index int) {
 			service := env.Dependencies.HatnoteServiceController[index]
-			service.Init(env.Dependencies.InstitutesDataController)
+			service.Init(env.Dependencies.InstitutesDataController, env.Dependencies.GeoController)
 			service.StartService()
 		}(i)
 	}
@@ -56,6 +60,14 @@ func main() {
 		observables[i] = observer.UpdatableInstitutesData(env.Dependencies.HatnoteServiceController[i])
 	}
 	env.Dependencies.InstitutesDataController.StartPeriodicSync(observables...)
+
+	// Start periodic institutes data sync
+	log.Info("Start periodic geo information data sync ...", log.Main)
+	geoInformationObservables := make([]observer.UpdatableGeoInformation, len(env.Dependencies.HatnoteServiceController))
+	for i := 0; i < len(env.Dependencies.HatnoteServiceController); i++ {
+		geoInformationObservables[i] = observer.UpdatableGeoInformation(env.Dependencies.HatnoteServiceController[i])
+	}
+	env.Dependencies.GeoController.StartPeriodicSync(geoInformationObservables...)
 
 	// Application successfully started
 	logMessage := "Application successfully started"
