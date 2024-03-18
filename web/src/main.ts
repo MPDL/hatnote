@@ -32,9 +32,9 @@ function main(){
     // create observables
     let newCircleSubject: Subject<CircleData> = new Subject()
     let newBannerSubject: Subject<BannerData> = new Subject()
-    let onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]> = new BehaviorSubject([theme.current_service_theme.id_name, theme.current_visualisation])
-    let onCarouselTransitionMid: BehaviorSubject<[HatnoteVisService, Visualisation]> = new BehaviorSubject([theme.current_service_theme.id_name, theme.current_visualisation])
-    let onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]> = new BehaviorSubject([theme.current_service_theme.id_name, theme.current_visualisation])
+    let onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]> = new Subject()
+    let onCarouselTransitionMid: Subject<[HatnoteVisService, Visualisation]> = new Subject()
+    let onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]> = new Subject()
     let showWebsocketInfoboxSubject: Subject<NetworkInfoboxData> = new Subject()
     let updateDatabaseInfoSubject: Subject<DatabaseInfo> = new Subject()
     let updateVersionSubject: Subject<[string,number]> = new Subject()

@@ -1,6 +1,6 @@
 import {BloxbergTransformer} from "./bloxberg_transformer";
 import {HatnoteAudio} from "../audio/hatnote_audio";
-import {BehaviorSubject, Subject} from "rxjs";
+import {Subject} from "rxjs";
 import {BannerData, CircleData} from "../observable/model";
 import {BloxbergWebsocketData, KeeperWebsocketData, MinervaWebsocketData, WebsocketEventInfo} from "../websocket/model";
 import {
@@ -24,8 +24,8 @@ export class EventBridge{
     private audio: HatnoteAudio | undefined;
     private newCircleSubject: Subject<CircleData>;
     private newBannerSubject: Subject<BannerData>;
-    private onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>
-    private onThemeHasChanged: BehaviorSubject<[HatnoteVisService, Visualisation]>
+    private onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]>
+    private onThemeHasChanged: Subject<[HatnoteVisService, Visualisation]>
     private eventBuffer: EventBuffer;
     private updateVersionSubject: Subject<[string,number]>
     private _currentService: HatnoteVisService
@@ -41,9 +41,9 @@ export class EventBridge{
     }
     constructor(audio: HatnoteAudio | undefined, newCircleSubject: Subject<CircleData>, newBanenrSubject: Subject<BannerData>,
                 updateVersionSubject: Subject<[string,number]>,
-                onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>,
-                onCarouselTransitionMid: BehaviorSubject<[HatnoteVisService, Visualisation]>,
-                onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]>,
+                onCarouselTransitionMid: Subject<[HatnoteVisService, Visualisation]>,
+                onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]>,
                 settings_data: SettingsData) {
         this.settings_data = settings_data
         this.event_delay_protection = settings_data.event_delay_protection
