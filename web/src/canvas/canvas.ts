@@ -30,9 +30,9 @@ export class Canvas {
     public readonly settings: SettingsData;
     public readonly showNetworkInfoboxObservable: Subject<NetworkInfoboxData>
     public readonly updateDatabaseInfoSubject: Subject<DatabaseInfo>
-    public readonly onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>
-    public readonly onThemeHasChanged: BehaviorSubject<[HatnoteVisService, Visualisation]>
-    public readonly onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]>
+    public readonly onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]>
+    public readonly onThemeHasChanged: Subject<[HatnoteVisService, Visualisation]>
+    public readonly onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]>
     public readonly updateVersionSubject: Subject<[string, number]>
     public readonly newCircleSubject: Subject<CircleData>
     public readonly newBannerSubject: Subject<BannerData>
@@ -62,9 +62,9 @@ export class Canvas {
     constructor(theme: VisualisationDirector, settings: SettingsData, newCircleSubject: Subject<CircleData>,
                           showNetworkInfoboxObservable: Subject<NetworkInfoboxData>,
                           updateVersionSubject: Subject<[string, number]>,
-                          onCarouselTransitionStart: BehaviorSubject<[HatnoteVisService, Visualisation]>,
-                          onCarouselTransitionMid: BehaviorSubject<[HatnoteVisService, Visualisation]>,
-                          onCarouselTransitionEnd: BehaviorSubject<[HatnoteVisService, Visualisation]>,
+                          onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]>,
+                          onCarouselTransitionMid: Subject<[HatnoteVisService, Visualisation]>,
+                          onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]>,
                           updateDatabaseInfoSubject: Subject<DatabaseInfo>,
                           newBannerSubject: Subject<BannerData>,
                           appContainer:  Selection<HTMLDivElement, unknown, null, undefined>) {
