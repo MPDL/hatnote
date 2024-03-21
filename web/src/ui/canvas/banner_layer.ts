@@ -1,5 +1,5 @@
 import {Selection} from "d3";
-import {BannerData} from "../observable/model";
+import {BannerData} from "../../observable/model";
 import {Banner} from "./banner";
 import {Canvas} from "./canvas";
 

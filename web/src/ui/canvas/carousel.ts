@@ -1,9 +1,9 @@
-import {Transition} from "./transition";
+import {Transition} from "../transition";
 import {ProgressIndicator} from "./progress_indicator";
-import {DatabaseInfo} from "../observable/model";
+import {DatabaseInfo} from "../../observable/model";
 import {BehaviorSubject, Subject} from "rxjs";
-import {HatnoteVisService} from "../service_event/model";
-import {ServiceTheme, Visualisation} from "../theme/model";
+import {HatnoteVisService} from "../../service_event/model";
+import {ServiceTheme, Visualisation} from "../../theme/model";
 import {Canvas} from "./canvas";
 
 export class Carousel {

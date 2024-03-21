@@ -1,6 +1,6 @@
-import {HatnoteVisService} from "../../service_event/model";
+import {HatnoteVisService} from "../../../service_event/model";
 import {BaseType, select, Selection} from "d3";
-import {CircleData} from "../../observable/model";
+import {CircleData} from "../../../observable/model";
 import {GeoCirclesLayer} from "./geoCirclesLayer";
 import {Canvas} from "../canvas";
 

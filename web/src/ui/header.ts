@@ -1,13 +1,13 @@
 import {Selection} from "d3";
 import MinervaLogo from "../../assets/images/minervamessenger-banner-kussmund+bulb.png";
-import {LegendItem} from "./legend_item";
 import {ServiceTheme, Visualisation} from "../theme/model";
 import {environmentVariables} from "../configuration/environment";
-import {Canvas} from "./canvas";
+import {Canvas} from "./canvas/canvas";
 import {Subject} from "rxjs";
 import {HatnoteVisService} from "../service_event/model";
 import {VisualisationDirector} from "../theme/visualisationDirector";
-import {LegendItemHtml} from "./legend_item_html";
+import {LegendItemHtml} from "./legend_item";
+import {Legend} from "./legend";
 
 export class Header{
     private readonly root: Selection<HTMLDivElement, unknown, null, undefined>
@@ -79,9 +79,7 @@ export class Header{
             .style('margin-right', '20px')
 
         if(!visDirector.isMobileScreen) {
-            for (let i = 0; i < visDirector.current_service_theme.legend_items.length; i++) {
-                new LegendItemHtml(this.legend, visDirector, this.visDirector.current_service_theme.legend_items[i])
-            }
+            new Legend(this.legend, visDirector, onThemeHasChanged, true)
         }
 
         updateVersionSubject.subscribe({
@@ -107,22 +105,10 @@ export class Header{
         }
     }
 
-    private clearLegendItems(){
-        this.legend.selectChildren().remove()
-    }
-
     public themeUpdate(currentServiceTheme: ServiceTheme) {
         this.logo.attr('src', currentServiceTheme.header_logo)
 
         this.title0.text(this.visDirector.current_visualisation === Visualisation.listenTo ? 'Listen to\u00A0' : 'Locate\u00A0')
         this.title1.text(currentServiceTheme.header_title)
-
-        // update legend items
-        this.clearLegendItems()
-        if(!this.visDirector.isMobileScreen){
-            for (let i = 0; i < this.visDirector.current_service_theme.legend_items.length; i++) {
-                new LegendItemHtml(this.legend, this.visDirector, this.visDirector.current_service_theme.legend_items[i])
-            }
-        }
     }
 }

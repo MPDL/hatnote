@@ -1,6 +1,6 @@
 import {Selection} from "d3";
 import {BannerLayer} from "./banner_layer";
-import {BannerData} from "../observable/model";
+import {BannerData} from "../../observable/model";
 
 export class Banner{
     private readonly bannerLayer: BannerLayer

@@ -1,6 +1,6 @@
 import {Selection} from "d3";
-import QrCodeMinerva from "../../assets/images/qr-code-minerva.png";
-import {ServiceTheme, Visualisation} from "../theme/model";
+import QrCodeMinerva from "../../../assets/images/qr-code-minerva.png";
+import {ServiceTheme, Visualisation} from "../../theme/model";
 import {Canvas} from "./canvas";
 
 export class QRCode{
