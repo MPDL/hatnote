@@ -46,7 +46,7 @@ export class GeoCircle {
             .duration(40000)
             .on('interrupt', _ => {
                 highlightedArea.interrupt();
-                popUpContainer.remove();
+                popUp.remove();
                 if(this.canvas.settings.debug_mode){
                     console.log('Circle removed for ' + circleData.type)
                 }
@@ -67,10 +67,10 @@ export class GeoCircle {
         }
 
         // add pop up
-        const popUpContainer = this.canvas.geoPopUpContainer.append("div");
-        popUpContainer
+        const popUp = this.canvas.geoPopUpContainer.append("div");
+        popUp
             .style('position', 'absolute')
-            .style('top', `${y - this.canvas.visDirector.hatnoteTheme.header_height + 10}px`)
+            .style('top', `${y + 10}px`)
             .style('left', `${x + 10}px`)
             .style('padding', '4px')
             .style('border-radius', '1px')
@@ -78,9 +78,9 @@ export class GeoCircle {
             .style('box-shadow', '1px 1px 5px #CCC')
             .style('font-size', '.7em')
             .style('border', '1px solid #CCC')
-        popUpContainer.append('span').text(circleData.label_text)
+        popUp.append('span').text(circleData.label_text)
 
-        popUpContainer.transition()
+        popUp.transition()
             .style('opacity', 0)
             .duration(4000)
             .remove()

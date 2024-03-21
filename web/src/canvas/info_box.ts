@@ -33,7 +33,7 @@ export class InfoBox{
 
     constructor(canvas: Canvas, type: InfoboxType) {
         this.canvas = canvas
-        this.isMobileScreen = this.canvas.isMobileScreen
+        this.isMobileScreen = this.canvas.visDirector.isMobileScreen
         this.carousel = this.canvas.carousel
         this.currentType = type
         this.root = canvas.appendSVGElement('g')

@@ -20,7 +20,7 @@ export class Navigation{
         this.canvas = canvas
 
         this.root = canvas.appendSVGElement('g').attr('id', 'navigation')
-            .attr('opacity', canvas.isMobileScreen ? 1 : 0);
+            .attr('opacity', canvas.visDirector.isMobileScreen ? 1 : 0);
         this.setPosition()
         this.isInfoBoxOpen = false
 
@@ -35,9 +35,9 @@ export class Navigation{
         // @ts-ignore
         window.hatnoteInfoButton = () => this.clickInfoButton(this);
 
-        if(this.canvas.isMobileScreen){
+        if(this.canvas.visDirector.isMobileScreen){
             for (let i = 0; i < 3; i++) {
-                this.legend_items.push(new LegendItem(undefined, this.canvas.info_box_legend, this.canvas))
+                this.legend_items.push(new LegendItem(this.canvas.info_box_legend, this.canvas))
             }
         }
     }

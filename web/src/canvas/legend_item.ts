@@ -11,26 +11,19 @@ export class LegendItem{
     private readonly smallTitle1: Selection<SVGTextElement, unknown, null, any> | undefined;
     private readonly smallTitle2: Selection<SVGTextElement, unknown, null, any> | undefined;
     private readonly circle: Selection<SVGCircleElement, unknown, null, any> | undefined;
-    private readonly header: Header | undefined;
-    private readonly legendInfoBox: InfoBox | undefined;
+    private readonly legendInfoBox: InfoBox;
     private readonly canvas: Canvas;
     private readonly theme: VisualisationDirector;
 
-    constructor(header: Header | undefined, legendInfoBox: InfoBox | undefined, canvas: Canvas) {
-        this.header = header;
+    constructor(legendInfoBox: InfoBox, canvas: Canvas) {
         this.legendInfoBox = legendInfoBox;
         this.canvas = canvas
         this.theme = this.canvas.visDirector
 
-        if(this.header) {
-            this.root = this.header?.appendSVGElement('g')
-                .attr('id', 'legend_items')
-                .attr('opacity', 0)
-        } else {
-            this.root = this.legendInfoBox?.appendSVGElement('g')
-                .attr('id', 'legend_items')
-                .attr('opacity', 0)
-        }
+
+        this.root = this.legendInfoBox?.appendSVGElement('g')
+            .attr('id', 'legend_items')
+            .attr('opacity', 0)
 
 
         this.title = this.root?.append('text')
@@ -94,12 +87,6 @@ export class LegendItem{
     }
 
     private updatePos(theme_legend_item: ThemeLegendItem){
-        if(this.header) {
-            let pos_x = theme_legend_item.position_x ?? theme_legend_item.position_x_small_title ?? 100
-            this.root?.attr('transform',
-                'translate(' + (this.header.canvas.width - pos_x) + ', ' + 0 + ')')
-        }
-
         if(this.legendInfoBox){
             let pos_y = theme_legend_item.position_y_info_box ?? 100
             this.root?.attr('transform',

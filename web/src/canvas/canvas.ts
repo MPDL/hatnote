@@ -15,18 +15,17 @@ import {ListenToVisualisation} from "./listen/listenToVisualisation";
 import {GeoVisualisation} from "./geo/geoVisualisation";
 import {Visualisation} from "../theme/model";
 import {set} from "lodash";
+import {Transition} from "./transition";
 
 export class Canvas {
     public readonly banner_layer:  BannerLayer;
     public readonly qr_code: QRCode;
-    public readonly header: Header;
     public readonly visDirector: VisualisationDirector;
     public readonly mute_icon: MuteIcon;
     public readonly carousel: Carousel | undefined
     public readonly navigation: Navigation | undefined;
     public readonly info_box_websocket: InfoBox;
     public readonly info_box_legend: InfoBox;
-    public readonly isMobileScreen: boolean = false;
     public readonly settings: SettingsData;
     public readonly showNetworkInfoboxObservable: Subject<NetworkInfoboxData>
     public readonly updateDatabaseInfoSubject: Subject<DatabaseInfo>
@@ -67,9 +66,10 @@ export class Canvas {
                           onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]>,
                           updateDatabaseInfoSubject: Subject<DatabaseInfo>,
                           newBannerSubject: Subject<BannerData>,
-                          appContainer:  Selection<HTMLDivElement, unknown, null, undefined>) {
+                          appContainer:  Selection<HTMLDivElement, unknown, null, undefined>,
+                          transition: Transition) {
         this._width = window.innerWidth;
-        this._height = window.innerHeight;
+        this._height = window.innerHeight - theme.hatnoteTheme.header_height;
         this.visDirector = theme;
         this.settings = settings
         this.onCarouselTransitionStart = onCarouselTransitionStart
@@ -81,14 +81,12 @@ export class Canvas {
         this.updateVersionSubject = updateVersionSubject
         this.appContainer = appContainer;
         this.newBannerSubject = newBannerSubject
-        if (this.width <= 430 || this.height <= 430) { // iPhone 12 Pro Max 430px viewport width
-            this.isMobileScreen = true;
-        }
 
         // draw order matters in this function. Do not change without checking the result.
         this._root = this.appContainer.append("svg")
             .attr("width", this.width)
             .attr("height", this.height)
+            .attr("id", "canvas")
             .attr('fill', this.visDirector.hatnoteTheme.svg_background_color)
             .style('background-color', '#1c2733');
         this.geoPopUpContainer = this.appContainer.append('div')
@@ -100,18 +98,17 @@ export class Canvas {
         this.geoVis = new GeoVisualisation(this)
 
         this.banner_layer = new BannerLayer(this)
-        this.header = new Header(this)
         // needs to be added last to the svg because it should draw over everything else
         this.info_box_websocket = new InfoBox(this, InfoboxType.network_websocket_connecting)
         this.info_box_legend = new InfoBox(this, InfoboxType.legend)
 
-        if(settings.carousel_mode && !this.isMobileScreen){
-            this.carousel = new Carousel(this)
+        if(settings.carousel_mode && !this.visDirector.isMobileScreen){
+            this.carousel = new Carousel(this, transition)
         }
 
         // needs to be added after the carousel transition because the transition layer spans over the entire screen
         // which captures mouse clicks that otherwise would not arrive at the navigation buttons
-        if (this.isMobileScreen && !this.settings.embedded_mode) {
+        if (this.visDirector.isMobileScreen && !this.settings.embedded_mode) {
             this.navigation = new Navigation(this)
         }
 
@@ -150,7 +147,7 @@ export class Canvas {
         this.qr_code.themeUpdate(this.visDirector.current_service_theme)
 
         // update header logo
-        this.header.themeUpdate(this.visDirector.current_service_theme)
+        //this.header.themeUpdate(this.visDirector.current_service_theme)
 
         this.navigation?.themeUpdate(this.visDirector.current_service_theme)
     }
@@ -160,11 +157,11 @@ export class Canvas {
     public windowUpdate() {
         // update canvas root dimensions
         this.width = window.innerWidth;
-        this.height = window.innerHeight;
+        this.height = window.innerHeight - this.visDirector.hatnoteTheme.header_height;
         this._root.attr("width", this.width).attr("height", this.height);
 
         // update canvas header dimensions
-        this.header.windowUpdate()
+       // this.header.windowUpdate()
 
         // update banner
         this.banner_layer.windowUpdate()

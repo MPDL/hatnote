@@ -53,7 +53,7 @@ export class QRCode{
     }
 
     private setOpacity(){
-        if(!this.canvas.isMobileScreen) {
+        if(!this.canvas.visDirector.isMobileScreen) {
             this.root.attr("opacity", 1)
         } else {
             this.root.attr("opacity", 0)

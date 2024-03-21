@@ -10,6 +10,8 @@ import {HelpPage} from "./help/help_page";
 import {select} from "d3";
 import {Canvas} from "./canvas/canvas";
 import {Visualisation} from "./theme/model";
+import {Transition} from "./canvas/transition";
+import {Header} from "./canvas/header";
 
 main();
 
@@ -27,28 +29,33 @@ function main(){
     }
 
     // load theme
-    let theme = new VisualisationDirector(settings_data);
+    let visDirector = new VisualisationDirector(settings_data);
 
     // create observables
     let newCircleSubject: Subject<CircleData> = new Subject()
     let newBannerSubject: Subject<BannerData> = new Subject()
     let onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]> = new Subject()
-    let onCarouselTransitionMid: Subject<[HatnoteVisService, Visualisation]> = new Subject()
+    let onThemeHasChanged: Subject<[HatnoteVisService, Visualisation]> = new Subject()
     let onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]> = new Subject()
     let showWebsocketInfoboxSubject: Subject<NetworkInfoboxData> = new Subject()
     let updateDatabaseInfoSubject: Subject<DatabaseInfo> = new Subject()
     let updateVersionSubject: Subject<[string,number]> = new Subject()
 
+    new Header(select(appContainer), visDirector, onThemeHasChanged, updateVersionSubject)
+
+    const transition = new Transition(select(appContainer), visDirector)
+
     // build canvas
-    new Canvas(theme, settings_data, newCircleSubject,
-        showWebsocketInfoboxSubject, updateVersionSubject, onCarouselTransitionStart, onCarouselTransitionMid,onCarouselTransitionEnd, updateDatabaseInfoSubject, newBannerSubject, select(appContainer))
+    new Canvas(visDirector, settings_data, newCircleSubject,
+        showWebsocketInfoboxSubject, updateVersionSubject, onCarouselTransitionStart, onThemeHasChanged,
+        onCarouselTransitionEnd, updateDatabaseInfoSubject, newBannerSubject, select(appContainer), transition)
 
     // load audio
     let audio = new HatnoteAudio(settings_data);
 
     // init event bridge
     let event_bridge = new EventBridge(audio, newCircleSubject, newBannerSubject, updateVersionSubject,
-        onCarouselTransitionStart, onCarouselTransitionMid,onCarouselTransitionEnd, settings_data)
+        onCarouselTransitionStart, onThemeHasChanged,onCarouselTransitionEnd, settings_data)
 
     // start websocket
     new WebsocketManager(settings_data, showWebsocketInfoboxSubject, updateDatabaseInfoSubject, event_bridge);
