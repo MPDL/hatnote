@@ -1,13 +1,12 @@
-import {easeBackOut, easeCircleOut, easeCubicOut, easeExpOut, easeQuadOut, Selection} from "d3";
+import {easeBackOut, easeCircleOut, easeCubicOut, easeExpOut, easeQuadOut, select, Selection} from "d3";
 import MpdlLogo from "../../assets/images/logo-mpdl-twocolor-dark-var1.png";
 import {ServiceTheme} from "../theme/model";
 import {HatnoteVisService} from "../service_event/model";
 import {Subject} from "rxjs";
-import {NetworkInfoboxData} from "../observable/model";
-import {Canvas} from "./canvas";
+import {VisualisationDirector} from "../theme/visualisationDirector";
 
 export class Transition{
-    private readonly root: Selection<SVGGElement, unknown, null, any>;
+    private readonly root: Selection<SVGSVGElement, unknown, null, undefined>;
     private readonly circle3: Selection<SVGCircleElement, unknown, null, any>;
     private readonly circle2: Selection<SVGCircleElement, unknown, null, any>;
     private readonly circle1: Selection<SVGCircleElement, unknown, null, any>;
@@ -19,14 +18,21 @@ export class Transition{
     private readonly mpdl_logo:  Selection<SVGImageElement, unknown, null, any>;
     private readonly text: Selection<SVGTextElement, unknown, null, any>;
     private readonly service_logo: Selection<SVGImageElement, unknown, null, any>;
-    private readonly canvas: Canvas;
     public readonly onTransitionStart: Subject<void>
     public readonly onTransitionMid: Subject<void>
     public readonly onTransitionEnd: Subject<void>
+    private visDirector: VisualisationDirector
 
-    constructor(canvas: Canvas) {
-        this.canvas = canvas
-        this.root = canvas.appendSVGElement('g').attr('id', 'transition_layer').attr('opacity', 0)
+    constructor(appContainer: Selection<HTMLDivElement, unknown, null, undefined>, visDirector: VisualisationDirector) {
+        this.visDirector = visDirector;
+        this.root = appContainer.append("svg")
+            .attr("width", this.visDirector.windowWidth)
+            .attr("height", this.visDirector.windowHeight)
+            .attr('id', 'transition_layer')
+            .attr('opacity', 0)
+            .style('pointer-events','none')
+            .style('position', 'absolute')
+            .style('top', 0)
 
         // you could do it also with data points https://gist.github.com/mbostock/1705868
         this.circles_path  = this.root.append('path').attr('opacity', 0)
@@ -69,9 +75,9 @@ export class Transition{
         this.onTransitionStart.next()
         this.root.attr('opacity', 1)
 
-        this.circles_path.attr('d', 'M' + this.canvas.width/2  + ' ' + this.canvas.height/2  + '  Q40 ' + ((this.canvas.height/2)+100) +' ,-10 -40')
+        this.circles_path.attr('d', 'M' + this.visDirector.windowWidth/2  + ' ' + this.visDirector.windowHeight/2  + '  Q40 ' + ((this.visDirector.windowHeight/2)+100) +' ,-10 -40')
 
-        let circle_radius = Math.sqrt(Math.pow(this.canvas.width/2, 2) + Math.pow(this.canvas.height/2, 2))
+        let circle_radius = Math.sqrt(Math.pow(this.visDirector.windowWidth/2, 2) + Math.pow(this.visDirector.windowHeight/2, 2))
 
         let circle3_color: string = service.color3
         switch (service.id_name) {
@@ -83,7 +89,7 @@ export class Transition{
         }
 
         this.circle3.attr('fill', circle3_color)
-            .attr('transform', 'translate(' + this.canvas.width/2 + ', ' + this.canvas.height/2 + ')')
+            .attr('transform', 'translate(' + this.visDirector.windowWidth/2 + ', ' + this.visDirector.windowHeight/2 + ')')
             .attr('r', 40)
             .attr('opacity', 0)
             .transition()
@@ -109,7 +115,7 @@ export class Transition{
             case HatnoteVisService.Keeper:
                 circle2_color = service.color2
         }
-        this.circle2.attr('transform', 'translate(' + this.canvas.width/2 + ', ' + this.canvas.height/2 + ')')
+        this.circle2.attr('transform', 'translate(' + this.visDirector.windowWidth/2 + ', ' + this.visDirector.windowHeight/2 + ')')
             .attr('fill', circle2_color)
             .attr('r', 35)
             .attr('opacity', 0)
@@ -128,7 +134,7 @@ export class Transition{
             .ease(easeExpOut)
             .duration(out_duration)
 
-        this.circle1.attr('transform', 'translate(' + this.canvas.width/2 + ', ' + this.canvas.height/2 + ')')
+        this.circle1.attr('transform', 'translate(' + this.visDirector.windowWidth/2 + ', ' + this.visDirector.windowHeight/2 + ')')
             .attr('fill', service.color1)
             .attr('r', 30)
             .attr('opacity', 0)
@@ -147,10 +153,10 @@ export class Transition{
             .ease(easeExpOut)
             .duration(out_duration)
 
-        this.mask.attr('height', this.canvas.height)
-            .attr('width', this.canvas.width)
+        this.mask.attr('height', this.visDirector.windowHeight)
+            .attr('width', this.visDirector.windowWidth)
 
-        this.mask_circle.attr('transform', 'translate(' + this.canvas.width/2 + ', ' + this.canvas.height/2 + ')')
+        this.mask_circle.attr('transform', 'translate(' + this.visDirector.windowWidth/2 + ', ' + this.visDirector.windowHeight/2 + ')')
             .attr('r', 0)
             .transition()
             .delay(delay + 70)
@@ -167,14 +173,14 @@ export class Transition{
             .ease(easeExpOut)
             .duration(out_duration)
 
-        this.background.attr('height', this.canvas.height)
-            .attr('width', this.canvas.width)
+        this.background.attr('height', this.visDirector.windowHeight)
+            .attr('width', this.visDirector.windowWidth)
 
-        this.mpdl_logo.attr('x', this.canvas.width*(3/4)).attr('y', 0)
+        this.mpdl_logo.attr('x', this.visDirector.windowWidth*(3/4)).attr('y', 0)
             .attr('width', 200)
 
         let logo_delay = 1000
-        this.text.attr('transform', 'translate(' + this.canvas.width/4 +', ' + this.canvas.height/4 + ')')
+        this.text.attr('transform', 'translate(' + this.visDirector.windowWidth/4 +', ' + this.visDirector.windowHeight/4 + ')')
             .attr('font-size', '60px')
             .attr('opacity', 0)
             .attr('width', 200)
@@ -193,7 +199,7 @@ export class Transition{
 
         let logo_width = 600
         this.service_logo.attr('href', service.transition_logo)
-            .attr('transform', 'translate(' + (this.canvas.width/2-logo_width/2) +', '+ this.canvas.height/2+')')
+            .attr('transform', 'translate(' + (this.visDirector.windowWidth/2-logo_width/2) +', '+ this.visDirector.windowHeight/2+')')
             .attr('width', logo_width)
             .attr('opacity', 0)
             .transition()

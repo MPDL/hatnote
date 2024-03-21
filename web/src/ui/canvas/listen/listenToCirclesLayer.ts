@@ -1,7 +1,7 @@
 import {Selection} from "d3";
-import {ServiceTheme} from "../../theme/model";
-import {CircleData} from "../../observable/model";
-import {HatnoteVisService, ServiceEvent} from "../../service_event/model";
+import {ServiceTheme} from "../../../theme/model";
+import {CircleData} from "../../../observable/model";
+import {HatnoteVisService, ServiceEvent} from "../../../service_event/model";
 import {Canvas} from "../canvas";
 import {ListenToVisualisation} from "./listenToVisualisation";
 import {ListenToCircle} from "./listenToCircle";

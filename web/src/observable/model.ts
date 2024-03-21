@@ -1,4 +1,4 @@
-import {InfoboxType} from "../canvas/info_box";
+import {InfoboxType} from "../ui/info_box";
 import {HatnoteVisService, ServiceEvent} from "../service_event/model";
 import {Location} from "../websocket/model";
 

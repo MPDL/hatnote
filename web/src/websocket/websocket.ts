@@ -10,7 +10,7 @@ import {
 import {SettingsData} from "../configuration/hatnote_settings";
 import {Subject} from "rxjs";
 import {DatabaseInfo, NetworkInfoboxData} from "../observable/model";
-import {InfoboxType} from "../canvas/info_box";
+import {InfoboxType} from "../ui/info_box";
 import {EventBridge} from "../service_event/event_bridge";
 import {HatnoteVisService} from "../service_event/model";
 

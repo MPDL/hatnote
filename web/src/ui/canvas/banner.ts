@@ -1,6 +1,6 @@
 import {Selection} from "d3";
 import {BannerLayer} from "./banner_layer";
-import {BannerData} from "../observable/model";
+import {BannerData} from "../../observable/model";
 
 export class Banner{
     private readonly bannerLayer: BannerLayer
@@ -11,7 +11,7 @@ export class Banner{
         this.bannerLayer = bannerLayer
 
         this.root = bannerLayer.appendSVGElement('g')
-            .attr('transform', 'translate(0, ' +  bannerLayer.canvas.visDirector.hatnoteTheme.header_height +')');
+            .attr('transform', 'translate(0, 0');
 
         this.user_container = this.root.append('g')
 

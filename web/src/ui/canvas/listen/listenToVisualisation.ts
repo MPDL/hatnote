@@ -1,9 +1,7 @@
 import {Selection} from "d3";
-import '../../style/normalize.css';
-import '../../style/main.css';
 import {Canvas} from "../canvas";
 import {ListenToCirclesLayer} from "./listenToCirclesLayer";
-import {Visualisation} from "../../theme/model";
+import {Visualisation} from "../../../theme/model";
 
 export class ListenToVisualisation {
     public readonly circles_layer: ListenToCirclesLayer;

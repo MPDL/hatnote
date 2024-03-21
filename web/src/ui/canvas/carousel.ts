@@ -1,13 +1,13 @@
-import {Transition} from "./transition";
+import {Transition} from "../transition";
 import {ProgressIndicator} from "./progress_indicator";
-import {DatabaseInfo} from "../observable/model";
+import {DatabaseInfo} from "../../observable/model";
 import {BehaviorSubject, Subject} from "rxjs";
-import {HatnoteVisService} from "../service_event/model";
-import {ServiceTheme, Visualisation} from "../theme/model";
+import {HatnoteVisService} from "../../service_event/model";
+import {ServiceTheme, Visualisation} from "../../theme/model";
 import {Canvas} from "./canvas";
 
 export class Carousel {
-    public readonly transition: Transition;
+    public transition: Transition;
     public readonly progess_indicator: ProgressIndicator;
     public readonly updateDatabaseInfoSubject: Subject<DatabaseInfo>
     public databaseInfo: Map<HatnoteVisService, DatabaseInfo>
@@ -17,15 +17,15 @@ export class Carousel {
     private readonly canvas: Canvas;
     private nextTheme: ServiceTheme | undefined;
     private currentCarouselOrderIndex;
-    constructor(canvas: Canvas) {
+    constructor(canvas: Canvas, transition: Transition) {
         this.canvas = canvas
-        this.transition = new Transition(this.canvas)
+        this.transition = transition
         this.transition.onTransitionStart.subscribe(_ => this.canvas.onCarouselTransitionStart.next(
             [this.canvas.visDirector.current_service_theme.id_name,this.canvas.visDirector.current_visualisation]))
         this.transition.onTransitionMid.subscribe(_ => {
             this.initNextTheme();
             this.canvas.onThemeHasChanged.next(
-            [this.canvas.visDirector.current_service_theme.id_name,this.canvas.visDirector.current_visualisation]);
+                [this.canvas.visDirector.current_service_theme.id_name,this.canvas.visDirector.current_visualisation]);
         })
         this.transition.onTransitionEnd.subscribe(_ => {
             this.canvas.onCarouselTransitionEnd.next(

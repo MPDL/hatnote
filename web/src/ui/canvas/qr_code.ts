@@ -1,6 +1,6 @@
 import {Selection} from "d3";
-import QrCodeMinerva from "../../assets/images/qr-code-minerva.png";
-import {ServiceTheme, Visualisation} from "../theme/model";
+import QrCodeMinerva from "../../../assets/images/qr-code-minerva.png";
+import {ServiceTheme, Visualisation} from "../../theme/model";
 import {Canvas} from "./canvas";
 
 export class QRCode{
@@ -53,7 +53,7 @@ export class QRCode{
     }
 
     private setOpacity(){
-        if(!this.canvas.isMobileScreen) {
+        if(!this.canvas.visDirector.isMobileScreen) {
             this.root.attr("opacity", 1)
         } else {
             this.root.attr("opacity", 0)
