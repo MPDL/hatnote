@@ -1,6 +1,6 @@
 import { easeLinear, Selection, transition} from "d3";
-import {ServiceTheme} from "../theme/model";
-import {HatnoteVisService} from "../service_event/model";
+import {ServiceTheme} from "../../theme/model";
+import {HatnoteVisService} from "../../service_event/model";
 import {Canvas} from "./canvas";
 
 export class ProgressIndicator{

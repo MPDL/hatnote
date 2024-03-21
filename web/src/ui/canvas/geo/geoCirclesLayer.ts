@@ -1,8 +1,6 @@
 import {GeoProjection, Selection} from "d3";
-import {ServiceTheme} from "../../theme/model";
-import {CircleData} from "../../observable/model";
-import {Canvas} from "../canvas";
-import {ServiceEvent} from "../../service_event/model";
+import {ServiceTheme} from "../../../theme/model";
+import {CircleData} from "../../../observable/model";
 import {GeoCircle} from "./geoCircle";
 import {GeoVisualisation} from "./geoVisualisation";
 

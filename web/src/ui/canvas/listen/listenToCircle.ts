@@ -1,6 +1,6 @@
 import {Selection} from "d3";
-import {ServiceEvent} from "../../service_event/model";
-import {getRandomIntInclusive} from "../../util/random";
+import {ServiceEvent} from "../../../service_event/model";
+import {getRandomIntInclusive} from "../../../util/random";
 import {ListenToCirclesLayer} from "./listenToCirclesLayer";
 
 export class ListenToCircle{

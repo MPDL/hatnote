@@ -1,15 +1,13 @@
 import {geoAlbers, geoBounds, geoEqualEarth, geoPath, GeoProjection, Selection} from "d3";
-import '../../style/normalize.css';
-import '../../style/main.css';
 import {feature, mesh} from "topojson";
-import countriesJson from '../../../assets/countries-50m.json'
-import germanyJson from '../../../assets/germany.json'
+import countriesJson from '../../../../assets/countries-50m.json'
+import germanyJson from '../../../../assets/germany.json'
 import {GeometryObject, Topology} from 'topojson-specification';
 import {FeatureCollection, GeoJsonProperties} from 'geojson';
 import {Canvas} from "../canvas";
-import {HatnoteVisService} from "../../service_event/model";
+import {HatnoteVisService} from "../../../service_event/model";
 import {GeoCirclesLayer} from "./geoCirclesLayer";
-import {Visualisation} from "../../theme/model";
+import {Visualisation} from "../../../theme/model";
 
 export class GeoVisualisation {
     public readonly  circles_layer: GeoCirclesLayer

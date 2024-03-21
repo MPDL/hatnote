@@ -1,8 +1,5 @@
 import {Selection} from "d3";
 import {IconButton} from "./icon_button";
-import {ServiceTheme} from "../theme/model";
-import {LegendItem} from "./legend_item";
-import {InfoboxType} from "./info_box";
 import {Canvas} from "./canvas";
 
 export class Navigation{
@@ -14,13 +11,12 @@ export class Navigation{
     private isInfoBoxOpen: boolean;
     private readonly navigationWidth = 270;
     private currentServiceIndex = 0;
-    private readonly legend_items: LegendItem[] = [];
 
     constructor(canvas: Canvas) {
         this.canvas = canvas
 
         this.root = canvas.appendSVGElement('g').attr('id', 'navigation')
-            .attr('opacity', canvas.isMobileScreen ? 1 : 0);
+            .attr('opacity', canvas.visDirector.isMobileScreen ? 1 : 0);
         this.setPosition()
         this.isInfoBoxOpen = false
 
@@ -34,12 +30,6 @@ export class Navigation{
         window.hatnoteLastService = () => this.lastService(this);
         // @ts-ignore
         window.hatnoteInfoButton = () => this.clickInfoButton(this);
-
-        if(this.canvas.isMobileScreen){
-            for (let i = 0; i < 3; i++) {
-                this.legend_items.push(new LegendItem(undefined, this.canvas.info_box_legend, this.canvas))
-            }
-        }
     }
 
     private setPosition(){
@@ -61,11 +51,11 @@ export class Navigation{
 
     private clickInfoButton(nav: Navigation){
         if(nav.isInfoBoxOpen){
-            this.canvas.info_box_legend.show(InfoboxType.legend, false)
+            this.canvas.showLegendInfoboxSubject.next(false)
             nav.infoButton.setIcon('info')
             nav.isInfoBoxOpen = false
         } else {
-            this.canvas.info_box_legend.show(InfoboxType.legend, true)
+            this.canvas.showLegendInfoboxSubject.next(true)
             nav.infoButton.setIcon('close')
             nav.isInfoBoxOpen = true
         }
@@ -79,28 +69,7 @@ export class Navigation{
             [this.canvas.visDirector.current_service_theme.id_name, this.canvas.visDirector.current_visualisation])
     }
 
-    private clearLegendItems(){
-        this.legend_items.forEach((theme_legend_item, i) => {
-            this.legend_items[i].hide()
-        });
-    }
-
-    public themeUpdate(currentServiceTheme: ServiceTheme) {
-        this.clearLegendItems()
-        currentServiceTheme.legend_items.forEach((theme_legend_item, i) => {
-            if(i < this.legend_items.length) {
-                this.legend_items[i].themeUpdate(theme_legend_item)
-            }
-        });
-    }
-
     public windowUpdate() {
         this.setPosition()
-
-        this.canvas.visDirector.current_service_theme.legend_items.forEach((theme_legend_item, i) => {
-            if(i < this.legend_items.length) {
-                this.legend_items[i].windowUpdate(theme_legend_item)
-            }
-        });
     }
 }

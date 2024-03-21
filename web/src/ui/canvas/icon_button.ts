@@ -1,9 +1,9 @@
 import {Selection} from "d3";
 import {Navigation} from "./navigation";
-import leftIcon from "../../assets/images/navigate_before_FILL0_wght400_GRAD0_opsz24.svg";
-import rightIcon from "../../assets/images/navigate_next_FILL0_wght400_GRAD0_opsz24.svg";
-import infoIcon from "../../assets/images/question_mark_FILL0_wght400_GRAD0_opsz24.svg";
-import closeIcon from "../../assets/images/close_FILL0_wght400_GRAD0_opsz24.svg";
+import leftIcon from "../../../assets/images/navigate_before_FILL0_wght400_GRAD0_opsz24.svg";
+import rightIcon from "../../../assets/images/navigate_next_FILL0_wght400_GRAD0_opsz24.svg";
+import infoIcon from "../../../assets/images/question_mark_FILL0_wght400_GRAD0_opsz24.svg";
+import closeIcon from "../../../assets/images/close_FILL0_wght400_GRAD0_opsz24.svg";
 
 export class IconButton {
     private readonly navigation: Navigation

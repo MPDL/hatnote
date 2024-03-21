@@ -5,7 +5,6 @@ import {HatnoteVisService, ServiceEvent} from "../service_event/model";
 import {keeper_service_theme} from "./keeper";
 import {bloxberg_service_theme} from "./bloxberg";
 import {hatnote_theme} from "./hatnote";
-import {getRandomIntInclusive} from "../util/random";
 
 export class VisualisationDirector {
     service_themes: Map<HatnoteVisService, ServiceTheme> = new Map<HatnoteVisService, ServiceTheme>()
@@ -17,6 +16,9 @@ export class VisualisationDirector {
     readonly hatnoteTheme: HatnoteTheme;
     current_visualisation: Visualisation;
     private settings_data: SettingsData;
+    public windowWidth: number;
+    public windowHeight: number;
+    public isMobileScreen: boolean = false;
 
     constructor(settings_data: SettingsData) {
         this.settings_data = settings_data
@@ -42,6 +44,20 @@ export class VisualisationDirector {
         this.carousel_service_order = [this.minervaTheme, this.keeperTheme, this.bloxbergTheme]
 
         this.current_service_theme = this.service_themes.get(settings_data.initialService) ?? this.minervaTheme
+
+        this.windowHeight = window.innerHeight;
+        this.windowWidth = window.innerWidth;
+
+        if (this.windowWidth <= 430 || this.windowHeight <= 430) { // iPhone 12 Pro Max 430px viewport width
+            this.isMobileScreen = true;
+        }
+
+        window.onresize = (_) => this.windowUpdate();
+    }
+
+    windowUpdate(){
+        this.windowHeight = window.innerHeight;
+        this.windowWidth = window.innerWidth;
     }
 
     getNextVisualisation(): Visualisation{

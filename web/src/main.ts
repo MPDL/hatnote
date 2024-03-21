@@ -8,8 +8,14 @@ import {WebsocketManager} from "./websocket/websocket";
 import {HatnoteVisService} from "./service_event/model";
 import {HelpPage} from "./help/help_page";
 import {select} from "d3";
-import {Canvas} from "./canvas/canvas";
+import {Canvas} from "./ui/canvas/canvas";
 import {Visualisation} from "./theme/model";
+import {Transition} from "./ui/transition";
+import {Header} from "./ui/header";
+import {InfoBox, InfoboxType} from "./ui/info_box";
+import {MuteIcon} from "./ui/mute_icon";
+import './style/normalize.css';
+import './style/main.css';
 
 main();
 
@@ -27,28 +33,49 @@ function main(){
     }
 
     // load theme
-    let theme = new VisualisationDirector(settings_data);
+    let visDirector = new VisualisationDirector(settings_data);
 
     // create observables
     let newCircleSubject: Subject<CircleData> = new Subject()
     let newBannerSubject: Subject<BannerData> = new Subject()
     let onCarouselTransitionStart: Subject<[HatnoteVisService, Visualisation]> = new Subject()
-    let onCarouselTransitionMid: Subject<[HatnoteVisService, Visualisation]> = new Subject()
+    let onThemeHasChanged: Subject<[HatnoteVisService, Visualisation]> = new Subject()
     let onCarouselTransitionEnd: Subject<[HatnoteVisService, Visualisation]> = new Subject()
     let showWebsocketInfoboxSubject: Subject<NetworkInfoboxData> = new Subject()
+    let showLegendInfoboxSubject: Subject<boolean> = new Subject()
     let updateDatabaseInfoSubject: Subject<DatabaseInfo> = new Subject()
     let updateVersionSubject: Subject<[string,number]> = new Subject()
 
+    // create header
+    new Header(select(appContainer), visDirector, onThemeHasChanged, updateVersionSubject)
+
+    // create transition
+    const transition = new Transition(select(appContainer), visDirector)
+
     // build canvas
-    new Canvas(theme, settings_data, newCircleSubject,
-        showWebsocketInfoboxSubject, updateVersionSubject, onCarouselTransitionStart, onCarouselTransitionMid,onCarouselTransitionEnd, updateDatabaseInfoSubject, newBannerSubject, select(appContainer))
+    let canvas = new Canvas(visDirector, settings_data, newCircleSubject,
+        updateVersionSubject, onCarouselTransitionStart, onThemeHasChanged,
+        onCarouselTransitionEnd, updateDatabaseInfoSubject, newBannerSubject, select(appContainer), transition,
+        showLegendInfoboxSubject)
+
+    // build info boxes
+    new InfoBox(select(appContainer), visDirector, showWebsocketInfoboxSubject, InfoboxType.network_websocket_connecting,
+        settings_data, onThemeHasChanged, showLegendInfoboxSubject, canvas.carousel)
+    new InfoBox(select(appContainer), visDirector, showWebsocketInfoboxSubject, InfoboxType.legend, settings_data,
+        onThemeHasChanged, showLegendInfoboxSubject, canvas.carousel)
+
+    // build mute icon
+    let mute_icon = new MuteIcon(select(appContainer))
+    if(!settings_data.kiosk_mode && !settings_data.audio_mute && !(!settings_data.carousel_mode && settings_data.map)){
+        mute_icon.show()
+    }
 
     // load audio
     let audio = new HatnoteAudio(settings_data);
 
     // init event bridge
     let event_bridge = new EventBridge(audio, newCircleSubject, newBannerSubject, updateVersionSubject,
-        onCarouselTransitionStart, onCarouselTransitionMid,onCarouselTransitionEnd, settings_data)
+        onCarouselTransitionStart, onThemeHasChanged,onCarouselTransitionEnd, settings_data)
 
     // start websocket
     new WebsocketManager(settings_data, showWebsocketInfoboxSubject, updateDatabaseInfoSubject, event_bridge);
